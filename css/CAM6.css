@@ -1,0 +1,286 @@
+/*
+ * CAM6.css
+ * Copyright (C) 2013, by Don Hopkins.
+ */
+
+.cam6-body {
+    color: white;
+    background-color: black;
+    font-family: arial, helvetica, sans;
+    font-size: 12pt;
+}
+
+.cam6-header {
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+.cam6-root {
+}
+
+.cam6-header :link,
+.cam6-root :link {
+    color: #a0ffa0;
+}
+
+.cam6-header :visited,
+.cam6-root :visited {
+    color: #a0a0ff;
+}
+
+.cam6-content {
+    padding-bottom: 10px;
+    border-bottom: 1px solid white;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.cam6-cellCanvasContainer {
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cam6-webCamVideo {
+    pointer-events: none;
+    display: none;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 2000;
+    display: block;
+    -webkit-transform: scale(-1,1);
+    -o-transform: scale(-1,1);
+    transform: scale(-1,1);
+}
+
+.cam6-headTrackerInput {
+    pointer-events: none;
+    display: none;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 2004;
+    -webkit-transform: scale(-1,1);
+    -o-transform: scale(-1,1);
+    transform: scale(-1,1);
+}
+
+.cam6-cellcanvas {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 2001;
+}
+
+.cam6-compositionOverlay {
+    pointer-events: none;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 2002;
+    display: none;
+}
+
+.cam6-feedbackOverlay {
+    pointer-events: none;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 2003;
+}
+
+.cam6-headTrackerOverlay {
+    pointer-events: none;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 2005;
+    display: block;
+}
+
+.cam6-commandsDiv {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.cam6-commandButton {
+    padding: 10px;
+}
+
+.cam6-paramsDiv {
+    margin-bottom: 10px;
+}
+
+.cam6-paramDiv {
+    white-space: nowrap;
+    margin-bottom: 5px;
+}
+
+.cam6-paramLabel {
+    display: inline-block;
+    width: 120px;
+    text-align: right;
+    margin-right: 20px;
+}
+
+.cam6-paramValue {
+    display: inline-block;
+    width: 120px;
+    text-align: left;
+    margin-left: 20px;
+}
+
+.cam6-paramSlider {
+    display: inline-block;
+    width: 512px;
+}
+
+.cam6-paramMenu {
+    display: inline-block;
+    width: 512px;
+}
+
+.cam6-hintsDiv {
+}
+
+.cam6-hintDiv {
+}
+
+.cam6-hintLink {
+}
+
+.cam6-wikiDiv {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    border-bottom: 1px solid white;
+}
+
+.cam6-wikiHeader {
+    font-size: 1.8em;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.cam6-wikiChapter {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-left: 0px;
+}
+
+.cam6-wikiChapterTop {
+}
+
+.cam6-wikiChapterHeader {
+    font-size: 1.3em;
+    font-weight: bold;
+    margin-left: 0px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.cam6-wikiChapterHeader:hover .cam6-wikiChapterToggle,
+.cam6-wikiChapterHeader:hover .cam6-wikiChapterName {
+    background-color: #606060;
+}
+
+.cam6-wikiChapterToggle {
+    font-size: 1.3em;
+    width: 1em;
+    text-align: right;
+    display: inline-block;
+}
+
+.cam6-wikiChapterName {
+    font-size: 1.3em;
+    display: inline-block;
+    padding-right: 10px;
+}
+
+.cam6-wikiChapterDescription {
+    font-size: 1.1em;
+    font-weight: normal;
+    margin-left: 1.5em;
+}
+
+.cam6-wikiChapterLink {
+    margin-left: 1.5em;
+    margin-bottom: 20px;
+    font-weight: normal;
+}
+
+.cam6-wikiChapterLinkAnchor {
+}
+
+.cam6-wikiChapterContentHolder {
+    margin-left: 2em;
+    font-weight: normal;
+}
+
+.cam6-wikiChapterContent {
+}
+
+.cam6-wikiChapterContentItem {
+    margin-bottom: 20px;
+}
+
+.cam6-wikiChapterContentItemName {
+    margin-left: 10px;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.cam6-wikiChapterContentItemDescription {
+    margin-left: 30px;
+}
+
+.cam6-wikiChapterContentItemLink {
+    margin-left: 30px;
+    margin-bottom: 10px;
+}
+
+.cam6-wikiChapterContentItemLinkAnchor {
+}
+
+.cam6-wikiChapterContentItemContent {
+    margin-left: 20px;
+}
+
+.cam6-jsonNode {
+    margin-left: 20px;
+}
+
+.cam6-jsonNodeArray {
+}
+
+.cam6-jsonNodeObject {
+}
+
+.cam6-jsonNodeFunction {
+    vertical-align: top;
+}
+
+.cam6-jsonNodeFunction .cam6-jsonNodeDescription {
+    white-space: pre;
+    padding: 10px;
+    border: 1px solid white;
+}
+
+.cam6-jsonNodeOther {
+}
+
+.cam6-jsonNodeLabel {
+    vertical-align: top;
+}
+
+.cam6-jsonNodeDescription {
+    margin-left: 20px;
+}
+
+.cam6-jsonNodeChildren {
+    margin-left: 20px;
+}
+
+
+////////////////////////////////////////////////////////////////////////
