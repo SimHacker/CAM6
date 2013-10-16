@@ -4470,7 +4470,236 @@
                 // handleIndexGetFunction.
                 cellValues: null
 
+            },
+
+            ////////////////////////////////////////////////////////////////////////
+            // RISCA neighborhood.
+
+            {
+
+                symbol: 'RISCA',
+
+                name: 'RISCA',
+
+                description: 'Ridiculous Instruction Set Cellular Automata.',
+
+                neighbors: ['nw', 'n', 'ne', 'w', 'c', 'e', 'sw', 's', 'se'],
+
+                neighborhoodFunction: function neighborhoodFunction_Life(neighborhoodDict, ruleDict) {
+
+                    var cells = this.getCells();
+                    var nextCells = this.getNextCells();
+                    var cellWidth = this.cellWidth;
+                    var cellHeight = this.cellHeight;
+                    var cellGutter = this.cellGutter;
+                    var cellBufferWidth = this.cellBufferWidth;
+                    var step = this.step;
+                    var frob = this.frob;
+                    var nw, n, ne;
+                    var w,  c,  e;
+                    var sw, s, se;
+                    var error = 0;
+                    var cellIndex;
+                    var nextCol;
+                    var nextRow;
+                    var nextRowSkip;
+                    var width;
+                    var height;
+                    var sum;
+                    var cell;
+
+                    if (this.doHistogram) {
+                        for (cell = 0; cell < 256; cell++) {
+                            this.histogram[cell] = 0;
+                        }
+                    }
+
+                    // Prime the pump each frame to keep it jiggly.
+                    //error = Math.floor(Math.random() * 256) & 7;
+
+                    // Rotate the direction of scanning 90 degrees every step,
+                    // to cancel out the dithering artifacts that would cause the
+                    // heat to drift up and to the right.
+
+                    switch (step & 3) {
+                        case 0:
+                            width = cellWidth; height = cellHeight;
+                            cellIndex = (cellGutter * cellBufferWidth) + cellGutter;
+                            nextCol = 1; nextRow = cellBufferWidth;
+                            nextRowSkip = cellGutter * 2;
+                            break;
+                        case 1:
+                            width = cellHeight; height = cellWidth;
+                            cellIndex = cellBufferWidth + cellGutter + (cellWidth - 1);
+                            nextCol = cellBufferWidth; nextRow = -1;
+                            nextRowSkip = -(cellBufferWidth * cellHeight) - cellGutter;
+                            break;
+                        case 2:
+                            width = cellWidth; height = cellHeight;
+                            cellIndex = ((cellGutter + cellHeight - 1) * cellBufferWidth) + cellWidth;
+                            nextCol = -1; nextRow = -cellBufferWidth;
+                            nextRowSkip = cellGutter * -2;
+                            break;
+                        case 3:
+                            width = cellHeight; height = cellWidth;
+                            cellIndex = ((cellGutter + cellHeight - 1) * cellBufferWidth) + cellGutter;
+                            nextCol = -cellBufferWidth; nextRow = 1;
+                            nextRowSkip = (cellBufferWidth * cellHeight) + 1;
+                            break;
+                    }
+
+                    function sum8mask(mask) {
+                        return (((nw&mask) + (n&mask) + (ne&mask) + (w&mask) + (e&mask) + (sw&mask) + (s&mask) + (se&mask)));
+                    }
+
+                    function sum9mask(mask) {
+                        (((nw&mask) + (n&mask) + (ne&mask) + (w&mask) + (c&mask) + (e&mask) + (sw&mask) + (s&mask) + (se&mask)));
+                    }
+
+                    for (var cellY = 0;
+                         cellY < height;
+                         cellY++) {
+
+                        // Load the right two columns of the 3x3 window.
+                        n  = cells[cellIndex - nextCol - nextRow];  ne = cells[cellIndex - nextRow];
+                        c  = cells[cellIndex - nextCol          ];  e  = cells[cellIndex          ];
+                        s  = cells[cellIndex - nextCol + nextRow];  se = cells[cellIndex + nextRow];
+
+                        for (var cellX = 0;
+                             cellX < width;
+                             cellX++) {
+
+                            // Scroll the 3x3 window to the right, scrolling the middle and right
+                            // columns to the left, then scooping up three new cells from the right
+                            // leading edge.
+                            nw = n;  n = ne;  ne = cells[cellIndex + nextCol - nextRow];
+                            w  = c;  c =  e;  e  = cells[cellIndex + nextCol          ];
+                            sw = s;  s = se;  se = cells[cellIndex + nextCol + nextRow];
+
+                            cell = c & 0xf0;
+
+                            switch (cell) {
+
+                                case 0x00: // c
+                                    cell |= (c & 0x0f) ;
+                                    break;
+
+                                case 0x10: // life
+                                    sum = (sum8mask(8) >> 3);
+                                    cell |= ((c & 0x0e) >> 1) |
+                                              ((((c & 1) && ((sum == 2) || (sum == 3))) ||
+                                                (sum == 3)) << 3);
+                                    break;
+
+                                case 0x20: // brain
+                                    cell |= ((c & 0x0e) >> 1) |
+                                              ((((c & 0x03) == 0) &&
+                                                ((sum8mask(8) >> 3) == 2)) << 3);
+                                    break;
+                                case 0x30: // torben
+                                    sum = (sum9mask(8) >> 3);
+                                    cell |= ((c & 0x0e) >> 1) |
+                                              (((sum > 6) || (sum == 5) || (sum == 3)) << 3);
+                                    break;
+                                case 0x40: // anneal
+                                    sum = (sum9mask(8) >> 3);
+                                    cell |= ((c & 0x0e) >> 1) |
+                                              (((sum > 5) || (sum == 4)) << 3);
+                                    break;
+                                case 0x50: // ditto
+                                    sum = (sum9mask(8) >> 3);
+                                    cell |= ((c & 0x0e) >> 1) |
+                                              ((sum > 5) << 3);
+                                    break;
+                                case 0x60: // logic
+                                    {   cell |= (c & 0x07);
+                                        switch (c & 0x0f) {
+                                            case 0x00: // and
+                                            case 0x08:
+                                                cell |= (nw & w) & 8;
+                                                break;
+                                            case 0x01: // or
+                                            case 0x09:
+                                                cell |= (nw | w) & 8;
+                                                break;
+                                            case 0x02: // xor
+                                            case 0x0a:
+                                                cell |= (nw ^ w) & 8;
+                                                break;
+                                            case 0x03: // nand
+                                            case 0x0b:
+                                                cell |= (~(nw & w)) & 8;
+                                                break;
+                                            case 0x04: // nor
+                                            case 0x0c:
+                                                cell |= (~(nw | w)) & 8;
+                                                break;
+                                            case 0x05: // equiv
+                                            case 0x0d:
+                                                cell |= (~(nw ^ w)) & 8;
+                                                break;
+                                            case 0x06: // flip state 0
+                                                cell |= (nw & 8);
+                                                break;
+                                            case 0x0e: // flop state 1
+                                                cell |= ((~w) & 8);
+                                                break;
+                                            case 0x07: // relay
+                                            case 0x0f:
+                                                cell |= ((w & 8) ? sw : nw) & 8;
+                                                break;
+                                        }
+                                    }
+                                    break;
+                                case 0x70: // n
+                                    cell |= (n & 0x0f) ;
+                                    break;
+                                case 0x80: // nw
+                                    cell |= (nw & 0x0f) ;
+                                    break;
+                                case 0x90: // w
+                                    cell |= (w & 0x0f) ;
+                                    break;
+                                case 0xa0: // sw
+                                    cell |= (sw & 0x0f) ;
+                                    break;
+                                case 0xb0: // s
+                                    cell |= (s & 0x0f) ;
+                                    break;
+                                case 0xc0: // se
+                                    cell |= (se & 0x0f) ;
+                                    break;
+                                case 0xd0: // e
+                                    cell |= (e & 0x0f) ;
+                                    break;
+                                case 0xe0: // ne
+                                    cell |= (ne & 0x0f) ;
+                                    break;
+                                case 0xf0: // heat
+                                    error += nw + n + ne + w + e + sw + s + se + frob;
+                                    cell |= ((error >> 3) & 0x0f);
+                                    error &= 7;
+                                    break;
+                            }
+
+                            nextCells[cellIndex] =
+                                cell;
+
+                            if (this.doHistogram) {
+                                this.histogram[cell]++;
+                            }
+
+                            cellIndex += nextCol;
+                        }
+
+                        // Skip the gutter.
+                        cellIndex += nextRowSkip;
+                    }
+
+                }
+
             }
+            
 
         ]);
 
@@ -5737,6 +5966,19 @@
                 description: 'The classic John von Neumann 29 State rule.',
                 neighborhood: 'JohnVonNeumann29',
                 paramsUsed: {}
+            },
+
+            {
+                symbol: 'RISCA',
+                name: 'Ridiculous Instruction Set Cellular Automata',
+                description: 'Ridiculous Instruction Set Cellular Automata.',
+                neighborhood: 'RISCA',
+                paramsUsed: {
+                    frobTarget: true,
+                    frob: true,
+                    unfrob: true,
+                    frobScale: true,
+                }
             }
 
     ]);
