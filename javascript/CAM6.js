@@ -4521,32 +4521,11 @@
                     // to cancel out the dithering artifacts that would cause the
                     // heat to drift up and to the right.
 
-                    switch (step & 3) {
-                        case 0:
-                            width = cellWidth; height = cellHeight;
-                            cellIndex = (cellGutter * cellBufferWidth) + cellGutter;
-                            nextCol = 1; nextRow = cellBufferWidth;
-                            nextRowSkip = cellGutter * 2;
-                            break;
-                        case 1:
-                            width = cellHeight; height = cellWidth;
-                            cellIndex = cellBufferWidth + cellGutter + (cellWidth - 1);
-                            nextCol = cellBufferWidth; nextRow = -1;
-                            nextRowSkip = -(cellBufferWidth * cellHeight) - cellGutter;
-                            break;
-                        case 2:
-                            width = cellWidth; height = cellHeight;
-                            cellIndex = ((cellGutter + cellHeight - 1) * cellBufferWidth) + cellWidth;
-                            nextCol = -1; nextRow = -cellBufferWidth;
-                            nextRowSkip = cellGutter * -2;
-                            break;
-                        case 3:
-                            width = cellHeight; height = cellWidth;
-                            cellIndex = ((cellGutter + cellHeight - 1) * cellBufferWidth) + cellGutter;
-                            nextCol = -cellBufferWidth; nextRow = 1;
-                            nextRowSkip = (cellBufferWidth * cellHeight) + 1;
-                            break;
-                    }
+
+                    width = cellWidth; height = cellHeight;
+                    cellIndex = (cellGutter * cellBufferWidth) + cellGutter;
+                    nextCol = 1; nextRow = cellBufferWidth;
+                    nextRowSkip = cellGutter * 2;
 
                     function sum8mask(mask) {
                         return (((nw&mask) + (n&mask) + (ne&mask) + (w&mask) + (e&mask) + (sw&mask) + (s&mask) + (se&mask)));
