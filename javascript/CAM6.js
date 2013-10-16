@@ -4560,105 +4560,136 @@
                             switch (cell) {
 
                                 case 0x00: // c
-                                    cell |= (c & 0x0f) ;
+                                    cell |=
+                                        (c & 0x0f) ;
                                     break;
 
                                 case 0x10: // life
                                     sum = (sum8mask(8) >> 3);
-                                    cell |= ((c & 0x0e) >> 1) |
-                                              ((((c & 1) && ((sum == 2) || (sum == 3))) ||
-                                                (sum == 3)) << 3);
+                                    cell |=
+                                        ((c & 0x0e) >> 1) |
+                                        (((((c & 8) && ((sum == 2) || (sum == 3))) || (sum == 3)) ? 1 : 0) << 3);
                                     break;
 
                                 case 0x20: // brain
-                                    cell |= ((c & 0x0e) >> 1) |
-                                              ((((c & 0x03) == 0) &&
-                                                ((sum8mask(8) >> 3) == 2)) << 3);
+                                    cell |=
+                                        ((c & 0x0e) >> 1) |
+                                        (((((c & 0x0c) == 0) && (((sum8mask(8) >> 3) == 2))) ? 1 : 0) << 3);
                                     break;
+
                                 case 0x30: // torben
                                     sum = (sum9mask(8) >> 3);
-                                    cell |= ((c & 0x0e) >> 1) |
-                                              (((sum > 6) || (sum == 5) || (sum == 3)) << 3);
+                                    cell |=
+                                        ((c & 0x0e) >> 1) |
+                                        ((((sum > 6) || (sum == 5) || (sum == 3)) ? 1 : 0) << 3);
                                     break;
+
                                 case 0x40: // anneal
                                     sum = (sum9mask(8) >> 3);
-                                    cell |= ((c & 0x0e) >> 1) |
-                                              (((sum > 5) || (sum == 4)) << 3);
+                                    cell |=
+                                        ((c & 0x0e) >> 1) |
+                                        (((((sum > 5) || (sum == 4))) ? 1 : 0) << 3);
                                     break;
+
                                 case 0x50: // ditto
                                     sum = (sum9mask(8) >> 3);
-                                    cell |= ((c & 0x0e) >> 1) |
-                                              ((sum > 5) << 3);
+                                    cell |=
+                                        ((c & 0x0e) >> 1) |
+                                        ((sum > 5) << 3);
                                     break;
+
                                 case 0x60: // logic
-                                    {   cell |= (c & 0x07);
+                                    {
+                                        cell |= (c & 0x07);
+
                                         switch (c & 0x0f) {
+
                                             case 0x00: // and
                                             case 0x08:
                                                 cell |= (nw & w) & 8;
                                                 break;
+
                                             case 0x01: // or
                                             case 0x09:
                                                 cell |= (nw | w) & 8;
                                                 break;
+
                                             case 0x02: // xor
                                             case 0x0a:
                                                 cell |= (nw ^ w) & 8;
                                                 break;
+
                                             case 0x03: // nand
                                             case 0x0b:
                                                 cell |= (~(nw & w)) & 8;
                                                 break;
+
                                             case 0x04: // nor
                                             case 0x0c:
                                                 cell |= (~(nw | w)) & 8;
                                                 break;
+
                                             case 0x05: // equiv
                                             case 0x0d:
                                                 cell |= (~(nw ^ w)) & 8;
                                                 break;
+
                                             case 0x06: // flip state 0
                                                 cell |= (nw & 8);
                                                 break;
+
                                             case 0x0e: // flop state 1
                                                 cell |= ((~w) & 8);
                                                 break;
+
                                             case 0x07: // relay
                                             case 0x0f:
                                                 cell |= ((w & 8) ? sw : nw) & 8;
                                                 break;
+
                                         }
+
                                     }
                                     break;
+
                                 case 0x70: // n
                                     cell |= (n & 0x0f) ;
                                     break;
+
                                 case 0x80: // nw
                                     cell |= (nw & 0x0f) ;
                                     break;
+
                                 case 0x90: // w
                                     cell |= (w & 0x0f) ;
                                     break;
+
                                 case 0xa0: // sw
                                     cell |= (sw & 0x0f) ;
                                     break;
+
                                 case 0xb0: // s
                                     cell |= (s & 0x0f) ;
                                     break;
+
                                 case 0xc0: // se
                                     cell |= (se & 0x0f) ;
                                     break;
+
                                 case 0xd0: // e
                                     cell |= (e & 0x0f) ;
                                     break;
+
                                 case 0xe0: // ne
                                     cell |= (ne & 0x0f) ;
                                     break;
+
                                 case 0xf0: // heat
                                     error += nw + n + ne + w + e + sw + s + se + frob;
                                     cell |= ((error >> 3) & 0x0f);
                                     error &= 7;
                                     break;
+
                             }
 
                             nextCells[cellIndex] =
