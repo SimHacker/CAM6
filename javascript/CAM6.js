@@ -4532,7 +4532,7 @@
                     }
 
                     function sum9mask(mask) {
-                        (((nw&mask) + (n&mask) + (ne&mask) + (w&mask) + (c&mask) + (e&mask) + (sw&mask) + (s&mask) + (se&mask)));
+                        return (((nw&mask) + (n&mask) + (ne&mask) + (w&mask) + (c&mask) + (e&mask) + (sw&mask) + (s&mask) + (se&mask)));
                     }
 
                     for (var cellY = 0;
