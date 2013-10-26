@@ -52,7 +52,8 @@
 // The CAM6 hardware and Forth software for defining rules and
 // orchestrating simulations is thoroughly described in this wonderful
 // book by Tommaso Toffoli and Norman Margolus of MIT.
-//// Cellular Automata Machines: A New Environment for Modeling
+//
+// Cellular Automata Machines: A New Environment for Modeling
 // Published April 1987 by MIT Press. ISBN: 9780262200608.
 // http://mitpress.mit.edu/books/cellular-automata-machines
 // http://books.google.com/books?id=HBlJzrBKUTEC&printsec=frontcover
@@ -161,13 +162,14 @@
 //         Neighborhoods can be programmed to directly compute one
 //         particular cellular automata rule (like 'Life', in which case
 //         there will be one or few corresponding rules that use it), or
-//         they may be more parameterizable and general purpose, like the
-//         look-up table.
+//         they may be more parameterizable and general purpose, like a
+//         look-up table (in which case there may be many different 
+//         rules that use it.)
 //
-//         There are several lookup-table that emulate the original CAM6
-//         neighborhoods (Moore, VonNeumann, Margolus), and other
-//         neighborhoods that compute their rules directly (Marble,
-//         Life, Brain).
+//         There are several lookup-table based neighborhoods that
+//         emulate the original CAM6 neighborhoods (Moore, VonNeumann,
+//         Margolus), and other neighborhoods that compute their rules
+//         directly (Marble, Life, Brain).
 //
 //     rule:
 //
@@ -204,8 +206,8 @@
 //   
 //     colorMap:
 //
-//         Eight RGBA color maps with 256 entries for displaying the 8 
-//         bit cell values.
+//         Eight bit RGBA color maps with 256 entries for displaying 
+//         the 8 bit cell values.
 //
 //     tool:
 //
@@ -217,8 +219,8 @@
 // 
 //     command:
 // 
-//         Commands triggered by pressing buttons, and recorded and played back 
-//         in scripts.
+//         Commands triggered by pressing buttons, and recorded and
+//         played back in scripts.
 // 
 //     pie:
 //
@@ -234,8 +236,10 @@
 // 
 //     compositionFunction:
 // 
-//         Functions for composing a 32 bit RGBA canvas drawing
-//         into the 8 bit cells.
+//         Functions for composing a 32 bit RGBA canvas graphics into
+//         the 8 bit cells. Makes it possible to apply the canvas 2d
+//         drawing api into the cells, or render images, HTML, SVG,
+//         WebGL graphics, etc, into the cells.
 // 
 //     image:
 //
@@ -243,7 +247,8 @@
 // 
 //     lineCap:
 // 
-//         An enumerated type of line caps, used by some of the drawing tools.
+//         An enumerated type of line caps, used by some of the
+//         drawing tools.
 // 
 //     playMode:
 // 
@@ -257,7 +262,7 @@
 //
 // Script Recording and Playback
 //
-// Code Templates and Slots
+// Code Templates with Slots and Inlining and Conditionals.
 //
 // Optimization Techniques
 //
@@ -310,33 +315,48 @@
 //
 // TODO (or work in progress):
 //
-// Save/Restore presets.
+// Save/Restore presets. Need a server side to share scripts 
+// and presets.
+//
 // Presets have links to other related presets that are pleasing to
 // switch between.
-// Rules have lists of presets for that rule.
-// Rules has links to other rules that are pleasing to switch beween.
-// Pie menus for directional links and pull-out list of presets for
-// both rules and presets.
 //
-// Record and play back sessions. Play multiple tracks at once. Turn
-// on and off tracks and properties of tracks. Time offset and scale
-// tracks. Repeat mode: loop, bounce, hold, etc.
+// Rules have lists of presets for that rule.
+//
+// Rules has links to other rules that are pleasing to switch beween.
+//
+// Pie menus for controling the simulator, selecting and configuring
+// drawing tools, arranging directionally oriented commands, with
+// pull-out linear parameters and lists of enumerations and presets.
+//
+// Record and play back sessions. Play multiple tracks at once. Record
+// and iterate layers on top of existing tracks. Turn on and off
+// tracks and properties of tracks. Time offset and scale tracks.
+// Repeat mode: loop, bounce, hold, etc.
 //
 // Networked multi player jam sessions, built on top of recording
 // and playing back sessions.
 //
-// Musical beat detection, pitch tracking and other real time
-// audio and video analyzers as parameters to rule neighborhoods,
-// convolution kernel phase selection, editing tools, etc.
+// Musical beat detection, pitch tracking, video head tracking, and
+// other real time audio and video analyzers as parameters to rule
+// neighborhoods, convolution kernel phase selection, editing tools,
+// simulation parameters, etc.
 //
-// An image drawing tool can import any image or svg graphic with
+// A puff box pixel editor and visual keyboard stamp pad editor like
+// Scott Kim's Viewpoint thesis.
+//
+// An image drawing tool that can import any image or svg graphic with
 // or without an alpha channel, and drag it around over the cells,
-// stretch, rotate, tile, etc, adjust its composition function,
-// so it draws into the cells in various ways. It also can import
-// video like YouTube videos, svg or html animations, webcams,
-// streaming video, etc, and render them into the cells through
-// various transforms, processing and composition effects.
+// stretch, rotate, tile, etc, adjust its composition function, so it
+// draws into the cells in various ways. It also can import video like
+// YouTube videos, svg or html animations, webcams, streaming video,
+// etc, and render them into the cells through various transforms,
+// processing and composition effects.
 //
+// Stream out live video of CA simulation via WebRTC. Stream in live
+// editing commands from other users for collaborative network
+// jamming.
+// 
 // Plug-in editing tools specialize the image/video drawing tool,
 // and dynamically draw into a 32 bit canvas, then the canvas is
 // transformed and rendered from 32 bit to 8 bits via a plug-in
@@ -1388,7 +1408,7 @@
                     return 0;
                 },
                 getMaxValueFunction: function getMaxValueFunction(paramMetaData, target) {
-                    return 255;
+                    return 0xff;
                 }
             },
 
@@ -1519,7 +1539,7 @@
                     return 0;
                 },
                 getMaxValueFunction: function getMaxValueFunction(paramMetaData, target) {
-                    return 255;
+                    return 0xff;
                 }
             },
 
@@ -1542,7 +1562,7 @@
                     return 0;
                 },
                 getMaxValueFunction: function getMaxValueFunction(paramMetaData, target) {
-                    return 255;
+                    return 0xff;
                 }
             },
 
@@ -1565,7 +1585,7 @@
                     return 0;
                 },
                 getMaxValueFunction: function getMaxValueFunction(paramMetaData, target) {
-                    return 255;
+                    return 0xff;
                 }
             },
 
@@ -2539,7 +2559,7 @@
                     if (!ruleKernels) {
 
                         var kernels =
-                                neighborhoodDict.kernels;
+                                this.kernels;
                         var kernelSymbols =
                                 ruleDict.kernelSymbols;
 
@@ -2706,11 +2726,11 @@
 //     </slot>
 
 //     <slot name="calculateCell">
-                            cell = (error >> 4) & 255;
+                            cell = (error >> 4) & 0xff;
 //     </slot>
 
 //     <slot name="maskError">
-                            error -= (error & ~15);
+                            error -= (error & ~0x0f);
 //     </slot>
 
 //     <slot name="storeCell">
@@ -2739,142 +2759,215 @@
 
 // </function>
 
-                },
+                }
 
-                // Anisotropic convolution kernels, used in the ruleKernels by the
-                // Marble neighborhood. Each kernel must add up to 16.
+            },
 
-                kernels: {
-                    northWest: [
-                        2,  2,  1,
-                        2,  8,  0,
-                        1,  0,  0
-                    ],
-                    north: [
-                        2,  2,  2,
-                        1,  8,  1,
-                        0,  0,  0
-                    ],
-                    northEast: [
-                        1,  2,  2,
-                        0,  8,  2,
-                        0,  0,  1
-                    ],
-                    west: [
-                        2,  1,  0,
-                        2,  8,  0,
-                        2,  1,  0
-                    ],
-                    center_tight: [
-                        0,  0,  0,
-                        0,  16, 0,
-                        0,  0,  0
-                    ],
-                    east: [
-                        0,  1,  2,
-                        0,  8,  2,
-                        0,  1,  2
-                    ],
-                    southWest: [
-                        1,  0,  0,
-                        2,  8,  0,
-                        2,  2,  1
-                    ],
-                    south: [
-                        0,  0,  0,
-                        1,  8,  1,
-                        2,  2,  2
-                    ],
-                    southEast: [
-                        0,  0,  1,
-                        0,  8,  2,
-                        1,  2,  2
-                    ],
-                    center: [
-                        1,  2,  1,
-                        2,  4,  2,
-                        1,  2,  1
-                    ],
-                    center_loose_square: [
-                        2,  2,  2,
-                        2,  0,  2,
-                        2,  2,  2
-                    ],
-                    center_loose_round: [
-                        1,  3,  1,
-                        3,  0,  3,
-                        1,  3,  1
-                    ],
-                    center_loose_cross: [
-                        3,  1,  3,
-                        1,  0,  1,
-                        3,  1,  3
-                    ],
-                    center_cross: [
-                        2,  0,  2,
-                        0,  8,  0,
-                        2,  0,  2
-                    ],
-                    center_0: [
-                        0,  0,  0,
-                        0, 16,  0,
-                        0,  0,  0
-                    ],
-                    center_1: [
-                        0,  1,  0,
-                        1, 12,  1,
-                        0,  1,  0
-                    ],
-                    center_2: [
-                        1,  0,  1,
-                        0, 12,  0,
-                        1,  0,  1
-                    ],
-                    center_3: [
-                        0,  2,  0,
-                        2,  8,  2,
-                        0,  2,  0
-                    ],
-                    center_4: [
-                        2,  0,  2,
-                        0,  8,  0,
-                        2,  0,  2
-                    ],
-                    center_5: [
-                        1,  1,  1,
-                        1,  8,  1,
-                        1,  1,  1
-                    ],
-                    center_6: [
-                        1,  2,  1,
-                        2,  4,  2,
-                        1,  2,  1
-                    ],
-                    center_7: [
-                        2,  1,  2,
-                        1,  4,  1,
-                        2,  1,  2
-                    ],
-                    horizontal: [
-                        1,  0,  1,
-                        2,  8,  2,
-                        1,  0,  1
-                    ],
-                    vertical: [
-                        1,  2,  1,
-                        0,  8,  0,
-                        1,  2,  1
-                    ],
-                    diagonal_backslash: [
-                        2,  1,  0,
-                        1,  8,  1,
-                        0,  1,  2
-                    ],
-                    diagonal_slash: [
-                        0,  1,  2,
-                        1,  8,  1,
-                        2,  1,  0
-                    ]
+            ////////////////////////////////////////////////////////////////////////
+            // Flower neighborhood.
+
+            {
+                symbol: 'Flower',
+
+                name: 'Flower',
+
+                description: 'Flower neighborhood.',
+
+                neighborhoodFunction: function neighborhoodFunction_Flower(neighborhoodDict, ruleDict) {
+
+                    var ruleKernels = ruleDict.ruleKernels;
+                    var cells = this.getCells();
+                    var nextCells = this.getNextCells();
+                    var cellWidth = this.cellWidth;
+                    var cellHeight = this.cellHeight;
+                    var cellGutter = this.cellGutter;
+                    var cellBufferWidth = this.cellBufferWidth;
+                    var step = this.step;
+                    var phaseOffset = this.phaseOffset;
+                    var phaseShiftX = this.phaseShiftX;
+                    var phaseShiftY = this.phaseShiftY;
+                    var phaseShiftCell = this.phaseShiftCell;
+                    var phaseShiftStep = this.phaseShiftStep;
+                    var frob = this.frob;
+                    var unfrob = this.unfrob;
+                    var frobTarget = this.frobTarget;
+                    var nw, n, ne;
+                    var w,  c,  e;
+                    var sw, s, se;
+                    var error = ruleDict.error || 0;
+                    var cellIndex;
+                    var nextCol;
+                    var nextRow;
+                    var nextRowSkip;
+                    var kernelDown;
+                    var kernelRight;
+                    var width;
+                    var height;
+                    var kernelMask;
+                    var kernelBytes;
+                    var spatioTemporalCellularPhase;
+                    var cell;
+
+                    // Make the ruleKernels for the rule.
+
+                    var ruleKernels = ruleDict.ruleKernels;
+
+                    if (!ruleKernels) {
+
+                        var kernels =
+                                this.kernels;
+                        var kernelSymbols =
+                                ruleDict.kernelSymbols;
+
+                        ruleDict.ruleKernels = ruleKernels =
+                            [];
+
+                        for (var i = 0, n = kernelSymbols.length;
+                             i < n;
+                             i++) {
+
+                            var kernelSymbol =
+                                    kernelSymbols[i];
+                            var kernel =
+                                    kernels[kernelSymbol];
+                            var kernelBuffer =
+                                    new ArrayBuffer(9);
+                            var kernelBytes =
+                                    new Uint8Array(kernelBuffer);
+
+                            for (var j = 0;
+                                 j < 9;
+                                 j++) {
+
+                                kernelBytes[j] =
+                                    kernel[j];
+                            }
+
+                            ruleKernels.push(
+                                kernelBytes);
+
+                        } // for i
+
+                    }
+
+                    kernelMask =
+                        (1 << (Math.log(ruleKernels.length) /
+                               Math.log(2))) - 1;
+
+                    if (this.doHistogram) {
+                        for (var cell = 0; cell < 256; cell++) {
+                            this.histogram[cell] = 0;
+                        }
+                    }
+
+                    ruleDict.errors =
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+                    // Rotate the direction of scanning 90 degrees every step,
+                    // to cancel out the dithering artifacts that would cause the
+                    // heat to drift up and to the right.
+
+                    switch (step & 3) {
+                        case 0:
+                            width = cellWidth; height = cellHeight;
+                            cellIndex = (cellGutter * cellBufferWidth) + cellGutter;
+                            nextCol = 1; nextRow = cellBufferWidth;
+                            nextRowSkip = cellGutter * 2;
+                            kernelRight = 1; kernelDown = 3;
+                            break;
+                        case 1:
+                            width = cellHeight; height = cellWidth;
+                            cellIndex = cellBufferWidth + cellGutter + (cellWidth - 1);
+                            nextCol = cellBufferWidth; nextRow = -1;
+                            nextRowSkip = -(cellBufferWidth * cellHeight) - cellGutter;
+                            kernelRight = 3; kernelDown = -1;
+                            break;
+                        case 2:
+                            width = cellWidth; height = cellHeight;
+                            cellIndex = ((cellGutter + cellHeight - 1) * cellBufferWidth) + cellWidth;
+                            nextCol = -1; nextRow = -cellBufferWidth;
+                            nextRowSkip = cellGutter * -2;
+                            kernelRight = -1; kernelDown = -3;
+                            break;
+                        case 3:
+                            width = cellHeight; height = cellWidth;
+                            cellIndex = ((cellGutter + cellHeight - 1) * cellBufferWidth) + cellGutter;
+                            nextCol = -cellBufferWidth; nextRow = 1;
+                            nextRowSkip = (cellBufferWidth * cellHeight) + 1;
+                            kernelRight = -3; kernelDown = 1;
+                            break;
+                    }
+
+                    for (var cellY = 0;
+                         cellY < height;
+                         cellY++, cellIndex += nextRowSkip) {
+
+                        // Load the right two columns of the 3x3 window.
+                        n  = cells[cellIndex - nextCol - nextRow];  ne = cells[cellIndex - nextRow];
+                        c  = cells[cellIndex - nextCol          ];  e  = cells[cellIndex          ];
+                        s  = cells[cellIndex - nextCol + nextRow];  se = cells[cellIndex + nextRow];
+
+                        for (var cellX = 0;
+                             cellX < width;
+                             cellX++, cellIndex += nextCol) {
+
+
+                            // Scroll the 3x3 window to the right, scrolling the middle and right
+                            // columns to the left, then scooping up three new cells from the right
+                            // leading edge.
+                            nw = n;  n = ne;  ne = cells[cellIndex + nextCol - nextRow];
+                            w  = c;  c =  e;  e  = cells[cellIndex + nextCol          ];
+                            sw = s;  s = se;  se = cells[cellIndex + nextCol + nextRow];
+
+                            var same = c & 0x0f;
+                            var phase = c & 0xf0;
+                            var otherPhase;
+
+                            kernelBytes =
+                                ruleKernels[phase >> 4];
+
+                            // There are 16 different phases, each with its own convulution kernel.
+                            // Cells of different phases that are next to each other do not affect each
+                            // other (they act as if their neighbor of different phases have the same
+                            // heat value as they do), EXCEPT for phase 0, which allows energy heat to
+                            // pass back and forth to other phases.
+
+                            error +=
+                                ((((phase == 0) || ((otherPhase = (nw & 0xf0)) == phase) || (otherPhase == 0))
+                                    ? (nw & 0x0f) : same) * kernelBytes[4 - kernelDown - kernelRight]) +
+                                ((((phase == 0) || ((otherPhase = (n  & 0xf0)) == phase) || (otherPhase == 0))
+                                    ? (n  & 0x0f) : same) * kernelBytes[4 - kernelDown]) +
+                                ((((phase == 0) || ((otherPhase = (ne & 0xf0)) == phase) || (otherPhase == 0))
+                                    ? (ne & 0x0f) : same) * kernelBytes[4 - kernelDown + kernelRight]) +
+                                ((((phase == 0) || ((otherPhase = (w  & 0xf0)) == phase) || (otherPhase == 0))
+                                    ? (w  & 0x0f) : same) * kernelBytes[4 - kernelRight]) +
+                                ((((phase == 0) || ((otherPhase = (c  & 0xf0)) == phase) || (otherPhase == 0))
+                                    ? (c  & 0x0f) : same) * kernelBytes[4]) +
+                                ((((phase == 0) || ((otherPhase = (e  & 0xf0)) == phase) || (otherPhase == 0))
+                                    ? (e  & 0x0f) : same) * kernelBytes[4 + kernelRight]) +
+                                ((((phase == 0) || ((otherPhase = (sw & 0xf0)) == phase) || (otherPhase == 0))
+                                    ? (sw & 0x0f) : same) * kernelBytes[4 + kernelDown - kernelRight]) +
+                                ((((phase == 0) || ((otherPhase = (s  & 0xf0)) == phase) || (otherPhase == 0))
+                                    ? (s  & 0x0f) : same) * kernelBytes[4 + kernelDown]) +
+                                ((((phase == 0) || ((otherPhase = (se & 0xf0)) == phase) || (otherPhase == 0))
+                                    ? (se & 0x0f) : same) * kernelBytes[4 + kernelDown + kernelRight]);
+
+                            error += frob;
+
+                            cell = ((error >> 4) & 0x0f) | phase;
+                            error -= (error & ~0x0f);
+
+                            nextCells[cellIndex] = cell;
+
+                            if (this.doHistogram) {
+                                this.histogram[cell]++;
+                            }
+
+                        }
+
+                    }
+
+                    ruleDict.error = error;
                 }
 
             },
@@ -4709,7 +4802,6 @@
                 }
 
             }
-            
 
         ]);
 
@@ -5371,6 +5463,43 @@
                     'center_loose_round',
                     'center_loose_cross',
                     'center_loose_square'
+                ]
+            },
+
+            {
+                symbol: 'FunkyFlower',
+                name: 'Funky Flower',
+                description: 'Funky flower.',
+                neighborhood: 'Flower',
+                paramsUsed: {
+                    frobTarget: true,
+                    frob: true,
+                    unfrob: true,
+                    frobScale: true,
+                    phaseScale: true,
+                    phaseOffset: true,
+                    phaseShiftX: true,
+                    phaseShiftY: true,
+                    phaseShiftCell: true,
+                    phaseShiftStep: true
+                },
+                kernelSymbols: [
+                    'center_7',
+                    'center_6',
+                    'center_5',
+                    'center_4',
+                    'center_3',
+                    'center_2',
+                    'center_1',
+                    'center_0',
+                    'north',
+                    'northEast',
+                    'east',
+                    'southEast',
+                    'south',
+                    'southWest',
+                    'west',
+                    'northWest'
                 ]
             },
 
@@ -6987,7 +7116,7 @@
                         analyzerDict.activeToolDict = {
                             enabled: false,
                             toolSymbol: 'circularSpray',
-                            toolMask: 255,
+                            toolMask: 0xff,
                             paramsUsed: {}
                         };
                     }
@@ -8080,6 +8209,145 @@
 
 
     ////////////////////////////////////////////////////////////////////////
+    // Class variables.
+
+
+    // Anisotropic convolution kernels, used in the ruleKernels by the
+    // Marble neighborhood. Each kernel must add up to 16.
+    CAM6.prototype.kernels = {
+        northWest: [
+            2,  2,  1,
+            2,  8,  0,
+            1,  0,  0
+        ],
+        north: [
+            2,  2,  2,
+            1,  8,  1,
+            0,  0,  0
+        ],
+        northEast: [
+            1,  2,  2,
+            0,  8,  2,
+            0,  0,  1
+        ],
+        west: [
+            2,  1,  0,
+            2,  8,  0,
+            2,  1,  0
+        ],
+        center_tight: [
+            0,  0,  0,
+            0,  16, 0,
+            0,  0,  0
+        ],
+        east: [
+            0,  1,  2,
+            0,  8,  2,
+            0,  1,  2
+        ],
+        southWest: [
+            1,  0,  0,
+            2,  8,  0,
+            2,  2,  1
+        ],
+        south: [
+            0,  0,  0,
+            1,  8,  1,
+            2,  2,  2
+        ],
+        southEast: [
+            0,  0,  1,
+            0,  8,  2,
+            1,  2,  2
+        ],
+        center: [
+            1,  2,  1,
+            2,  4,  2,
+            1,  2,  1
+        ],
+        center_loose_square: [
+            2,  2,  2,
+            2,  0,  2,
+            2,  2,  2
+        ],
+        center_loose_round: [
+            1,  3,  1,
+            3,  0,  3,
+            1,  3,  1
+        ],
+        center_loose_cross: [
+            3,  1,  3,
+            1,  0,  1,
+            3,  1,  3
+        ],
+        center_cross: [
+            2,  0,  2,
+            0,  8,  0,
+            2,  0,  2
+        ],
+        center_0: [
+            0,  0,  0,
+            0, 16,  0,
+            0,  0,  0
+        ],
+        center_1: [
+            0,  1,  0,
+            1, 12,  1,
+            0,  1,  0
+        ],
+        center_2: [
+            1,  0,  1,
+            0, 12,  0,
+            1,  0,  1
+        ],
+        center_3: [
+            0,  2,  0,
+            2,  8,  2,
+            0,  2,  0
+        ],
+        center_4: [
+            2,  0,  2,
+            0,  8,  0,
+            2,  0,  2
+        ],
+        center_5: [
+            1,  1,  1,
+            1,  8,  1,
+            1,  1,  1
+        ],
+        center_6: [
+            1,  2,  1,
+            2,  4,  2,
+            1,  2,  1
+        ],
+        center_7: [
+            2,  1,  2,
+            1,  4,  1,
+            2,  1,  2
+        ],
+        horizontal: [
+            1,  0,  1,
+            2,  8,  2,
+            1,  0,  1
+        ],
+        vertical: [
+            1,  2,  1,
+            0,  8,  0,
+            1,  2,  1
+        ],
+        diagonal_backslash: [
+            2,  1,  0,
+            1,  8,  1,
+            0,  1,  2
+        ],
+        diagonal_slash: [
+            0,  1,  2,
+            1,  8,  1,
+            2,  1,  0
+        ]
+    };
+
+    ////////////////////////////////////////////////////////////////////////
     // CAM6 instance methods.
 
 
@@ -8126,19 +8394,19 @@
         this.toolSymbol = 'circularBrush';
         this.toolCell = 140;
         this.toolSize = 30;
-        this.toolMask = 255;
+        this.toolMask = 0xff;
         this.toolSprinkles = 10;
         this.toolVolume = 11.0;
         this.toolGranularity = 0.5;
         this.toolCellMin = 0;
-        this.toolCellMax = 255;
+        this.toolCellMax = 0xff;
         this.compositionChannel = 3;
-        this.compositionThresholdMin = 128;
-        this.compositionThresholdMax = 255;
+        this.compositionThresholdMin = 0x80;
+        this.compositionThresholdMax = 0xff;
         this.toolLineCapSymbol = 'round';
         this.toolImageSymbol = 'StupidFunClubLogo';
         this.ruleSymbol = 'TwistyMarble';
-        this.frobTarget = -.1;
+        this.frobTarget = 0;
         this.frob = -40;
         this.unfrob = 0.3;
         this.frobScale = -0.02;
@@ -8174,6 +8442,7 @@
         this.cellBufferSize = 0;
         this.cells0 = null;
         this.cells1 = null;
+        this.colorCells = null;
         this.animationTimer = null;
         this.paused = false;
         this.steps = 0;
