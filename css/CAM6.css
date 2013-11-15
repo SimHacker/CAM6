@@ -48,7 +48,7 @@
 .cam6-tabsFrame {
     position: absolute;
     left: 0px;
-    top: 0px;
+    top: 50px;
     z-index: 3000;
     margin: 5px;
     border: 1px solid white;
@@ -112,7 +112,7 @@
     display: none;
     position: absolute;
     margin: 5px;
-    top: 30px;
+    top: 80px;
     left: 0px;
     z-index: 3000;
     font-size: 1em;
