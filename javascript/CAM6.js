@@ -5459,6 +5459,43 @@
             },
 
             {
+                symbol: 'TwistierMarble',
+                name: 'Twistier Marble',
+                description: 'Simulated twistier marble.',
+                neighborhood: 'Marble',
+                paramsUsed: {
+                    frobTarget: true,
+                    frob: true,
+                    unfrob: true,
+                    frobScale: true,
+                    phaseScale: true,
+                    phaseOffset: true,
+                    phaseShiftX: true,
+                    phaseShiftY: true,
+                    phaseShiftCell: true,
+                    phaseShiftStep: true
+                },
+                kernelSymbols: [
+                    'north',
+                    'northEast',
+                    'east',
+                    'southEast',
+                    'south',
+                    'southWest',
+                    'west',
+                    'northWest',
+                    'norther',
+                    'northEaster',
+                    'easter',
+                    'southEaster',
+                    'souther',
+                    'southWester',
+                    'wester',
+                    'northWester'
+                ]
+            },
+
+            {
                 symbol: 'FuzzyMarble',
                 name: 'Fuzzy Marble',
                 description: 'Simulated fuzzy marble.',
@@ -8409,11 +8446,6 @@ dy = 0;
             2,  8,  0,
             2,  1,  0
         ],
-        center_tight: [
-            0,  0,  0,
-            0,  16, 0,
-            0,  0,  0
-        ],
         east: [
             0,  1,  2,
             0,  8,  2,
@@ -8434,10 +8466,55 @@ dy = 0;
             0,  8,  2,
             1,  2,  2
         ],
+        northWester: [
+            6,  3,  0,
+            3,  4,  0,
+            0,  0,  0
+        ],
+        norther: [
+            3,  6,  3,
+            0,  4,  0,
+            0,  0,  0
+        ],
+        northEaster: [
+            0,  3,  6,
+            0,  4,  3,
+            0,  0,  0
+        ],
+        wester: [
+            3,  0,  0,
+            6,  4,  0,
+            3,  0,  0
+        ],
+        easter: [
+            0,  0,  3,
+            0,  4,  6,
+            0,  0,  3
+        ],
+        southWester: [
+            0,  0,  0,
+            3,  4,  0,
+            6,  3,  0
+        ],
+        souther: [
+            0,  0,  0,
+            0,  4,  0,
+            3,  6,  3
+        ],
+        southEaster: [
+            0,  0,  0,
+            0,  4,  3,
+            0,  3,  6
+        ],
         center: [
             1,  2,  1,
             2,  4,  2,
             1,  2,  1
+        ],
+        center_tight: [
+            0,  0,  0,
+            0,  16, 0,
+            0,  0,  0
         ],
         center_loose_square: [
             2,  2,  2,
@@ -8591,18 +8668,18 @@ dy = 0;
         this.compositionThresholdMax = 0xff;
         this.toolLineCapSymbol = 'round';
         this.toolImageSymbol = 'StupidFunClubLogo';
-        this.ruleSymbol = 'TwistyMarble';
-        this.frobTarget = 0;
-        this.frob = 0;
-        this.unfrob = 0.3;
-        this.frobScale = -0.02;
+        this.ruleSymbol = 'TwistierMarble';
+        this.frobTarget = -0.1;
+        this.frob = -14.5;
+        this.unfrob = 0.05;
+        this.frobScale = -0.5;
         this.phaseScale = 0.005;
-        this.phaseOffset = 1;
+        this.phaseOffset = 0;
         this.phaseShiftX = 3;
         this.phaseShiftY = 3;
-        this.phaseShiftCell = 3;
-        this.phaseShiftStep = 5;
-        this.heatShiftPollution = 1;
+        this.phaseShiftCell = 2;
+        this.phaseShiftStep = 4;
+        this.heatShiftPollution = 2;
         this.colorMapSymbol = 'default';
         this.stepsPerFrame = 1;
         this.animationDelay = 1;
