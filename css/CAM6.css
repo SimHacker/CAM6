@@ -8,6 +8,14 @@
     background-color: black;
     font-family: arial, helvetica, sans;
     font-size: 12pt;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    position: relative;
 }
 
 .cam6-header {
@@ -16,6 +24,10 @@
 }
 
 .cam6-root {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
 }
 
 .cam6-header :link,
@@ -29,16 +41,98 @@
 }
 
 .cam6-content {
-    padding-bottom: 10px;
-    border-bottom: 1px solid white;
-    margin-bottom: 10px;
     text-align: center;
+    position: relative;
+}
+
+.cam6-tabsFrame {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 3000;
+    margin: 5px;
+    border: 1px solid white;
+    background-color: #404040;
+    overflow: hidden;
+    width: 24px;
+    height: 24px;
+    font-size: 20px;
+    font-weight: normal;
+    color: white;
+    opacity: 0.8;
+}
+
+.cam6-tabsFrame-opened {
+    width: auto;
+}
+
+.cam6-tabsContainer {
+    height: 24px;
+}
+
+.cam6-tabIcon {
+    width: 24px;
+    height: 24px;
+    background-color: #404040;
+    display: block;
+    float: left;
+}
+
+.cam6-tab {
+    height: 24px;
+    background-color: #404040;
+    display: block;
+    float: left;
+    padding: 0 5px 0 5px;
+}
+
+.cam6-tab:hover {
+    background-color: #202020 !important;
+}
+
+.cam6-tab-active {
+    color: black !important;
+    background-color: white !important;
+}
+
+.cam6-tab-active:hover {
+    color: white !important;
+    background-color: black !important;
+}
+
+.cam6-tab-active:hover {
+    color: black !important;
+    background-color: white !important;
+}
+
+.cam6-tabPanel {
+    border: 1px solid white;
+    color: white;
+    background-color: #404040;
+    display: none;
+    position: absolute;
+    margin: 5px;
+    top: 30px;
+    left: 0px;
+    z-index: 3000;
+    font-size: 1em;
+    font-weight: normal;
+    padding: 10px;
+    text-align: left;
+    opacity: 0.8;
+}
+
+.cam6-tabPanel-active {
+    display: block;
+}
+
+.cam6-cellCanvasFrame {
+    position: absolute;
+    left: 0px;
+    top: 0px;
 }
 
 .cam6-cellCanvasContainer {
-    position: relative;
-    margin-left: auto;
-    margin-right: auto;
 }
 
 .cam6-webCamVideo {
@@ -99,9 +193,13 @@
     display: block;
 }
 
-.cam6-commandsDiv {
-    margin-top: 10px;
-    margin-bottom: 10px;
+.cam6-interfaceFrame {
+    position: absolute;
+    left: 0px;
+    top: 30px;
+}
+
+.cam6-interfaceContainer {
 }
 
 .cam6-commandButton {
@@ -148,13 +246,6 @@
 }
 
 .cam6-hintLink {
-}
-
-.cam6-wikiDiv {
-    margin-top: 10px;
-    margin-bottom: 10px;
-    margin-left: 10px;
-    border-bottom: 1px solid white;
 }
 
 .cam6-wikiHeader {
@@ -282,5 +373,22 @@
     margin-left: 20px;
 }
 
+.cam6-dialog {
+    z-index: 10000;
+    opacity: 0.9;
+}
+
+.cam6-dialogText {
+    font-size: 1em;
+}
+
+.cam6-dialogPre {
+}
+
+.cam6-dialogTextArea {
+    display: block;
+    width: 560px;
+    height: 240px;
+}
 
 ////////////////////////////////////////////////////////////////////////

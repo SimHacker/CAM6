@@ -139,18 +139,18 @@
 //
 // The following types are defined:
 //
-//     valueMetaData:
-// 
-//         Metadata about each of the parameter values that the user 
+//     paramMetaData:
+//
+//         Metadata about each of the parameter values that the user
 //         can change to configure the simulation, drawing tool, rules,
 //         etc. Changes to these values can be recorded and played
 //         back in scripts, and user interfaces for editing the
-//         values are automatically generated, and updated when 
+//         values are automatically generated, and updated when
 //         the corresponding values change. The metadata contains
 //         functions to return human readable values and descriptions,
 //         and convert back and forth between the parameter
 //         representation and the user interface widget representation.
-// 
+//
 //     neighborhood:
 //
 //         A neighbordhood originally corresponded to one of the hardware
@@ -163,7 +163,7 @@
 //         particular cellular automata rule (like 'Life', in which case
 //         there will be one or few corresponding rules that use it), or
 //         they may be more parameterizable and general purpose, like a
-//         look-up table (in which case there may be many different 
+//         look-up table (in which case there may be many different
 //         rules that use it.)
 //
 //         There are several lookup-table based neighborhoods that
@@ -203,10 +203,10 @@
 //         diffusion simulation, so "heat pollition" can spread from the
 //         cells, and the cellular automata and heat diffusion may
 //         interact with each other).
-//   
+//
 //     colorMap:
 //
-//         Eight bit RGBA color maps with 256 entries for displaying 
+//         Eight bit RGBA color maps with 256 entries for displaying
 //         the 8 bit cell values.
 //
 //     tool:
@@ -214,14 +214,14 @@
 //         Editing tools for drawing in the cells.
 //
 //     analyzer:
-// 
+//
 //         Cell and video analyzers, for webcam head tracking, etc.
-// 
+//
 //     command:
-// 
+//
 //         Commands triggered by pressing buttons, and recorded and
 //         played back in scripts.
-// 
+//
 //     pie:
 //
 //         Pie menus for the user interface.
@@ -231,33 +231,33 @@
 //         Usage hints shown to help users.
 //
 //     chapter:
-// 
+//
 //         Chapters of the dynamically generated documentation.
-// 
+//
 //     compositionFunction:
-// 
+//
 //         Functions for composing a 32 bit RGBA canvas graphics into
 //         the 8 bit cells. Makes it possible to apply the canvas 2d
 //         drawing api into the cells, or render images, HTML, SVG,
 //         WebGL graphics, etc, into the cells.
-// 
+//
 //     image:
 //
 //         Images for use in the user interface.
-// 
+//
 //     lineCap:
-// 
+//
 //         An enumerated type of line caps, used by some of the
 //         drawing tools.
-// 
+//
 //     playMode:
-// 
+//
 //         An enumerated type of script playback modes.
-// 
+//
 //     recordMode:
 //
 //         An enumerated type of script recording modes.
-// 
+//
 // Dynamic User Interface Generation
 //
 // Script Recording and Playback
@@ -315,7 +315,7 @@
 //
 // TODO (or work in progress):
 //
-// Save/Restore presets. Need a server side to share scripts 
+// Save/Restore presets. Need a server side to share scripts
 // and presets.
 //
 // Presets have links to other related presets that are pleasing to
@@ -356,7 +356,7 @@
 // Stream out live video of CA simulation via WebRTC. Stream in live
 // editing commands from other users for collaborative network
 // jamming.
-// 
+//
 // Plug-in editing tools specialize the image/video drawing tool,
 // and dynamically draw into a 32 bit canvas, then the canvas is
 // transformed and rendered from 32 bit to 8 bits via a plug-in
@@ -409,8 +409,7 @@
     // logging function, in a format that turns into a link in the
     // Chrome debugger, so you can click on it to jump to the place
     // in the code that wrote the log message.
-    function _getCallerLog()
-    {
+    function _getCallerLog() {
         try {
             throw Error('');
         } catch (err) {
@@ -431,8 +430,7 @@
     // its arguments out as objects you can click on and browse, but
     // in other browsers concatinates them and prints them out as
     // strings.
-    function _log()
-    {
+    function _log() {
 
         var args = [_getCallerLog()];
 
@@ -455,22 +453,19 @@
 
 
     // LOG writes a log message to the console.
-    function LOG()
-    {
+    function LOG() {
         _log.apply(this, arguments);
     }
 
 
     // WARNING writes a warning message to the console.
-    function WARNING()
-    {
+    function WARNING() {
         _log.apply(this, arguments);
     }
 
 
     // ERROR writes an error message to the console.
-    function ERROR()
-    {
+    function ERROR() {
         _log.apply(this, arguments);
     }
 
@@ -799,7 +794,7 @@
                                                 if (_contextCount == 10) {
                                                     return function evalInContexts(_text) {return eval(_text)};
                                                 }
-                                                console.log("functionWithContexts: Too many _contexts! Max of 10.", ["_contextCount", _contextCount, "_contexts", _contexts]);
+                                                LOG('functionWithContexts: Too many _contexts! Max of 10.', ['_contextCount', _contextCount, '_contexts', _contexts]);
                                                 return null;
                                             }
                                         }
@@ -964,7 +959,7 @@
         scope[name + '_indexes'] = type_indexes;
 
         // get_type_by_index takes a numeric index, and returns the
-        // corrsponding object, after calling the type's 
+        // corrsponding object, after calling the type's
         // indexGetFunction on it, if defined.
         function get_type_by_index(index) {
 
@@ -1297,10 +1292,10 @@
         randomSeed: true,
         phaseTime: true,
         step: true,
-        webCamEnbled: true,
+        webCamEnabled: true,
         webCamState: true,
         webCamStatus: true,
-        headTrackerEnabld: true,
+        headTrackerEnabled: true,
         headTrackerState: true,
         headTrackerStatus: true,
         analyzerSymbol: true,
@@ -1364,6 +1359,7 @@
                 scopes: ['tool'],
                 recordable: true,
                 widget: 'menu',
+                tab: 'tools',
                 setValueFunction: function setValueFunction(paramMetaData, target, paramKey, paramValue, previousParamValue) {
                     target[paramKey] = paramValue;
                     // Changing the tool can change the visible parameters, so call updateParamVisibility.
@@ -1397,6 +1393,7 @@
                 scopes: ['tool'],
                 recordable: true,
                 widget: 'slider',
+                tab: 'tools',
                 condition: paramUsedByCurrentTool,
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return 'cell ' + hex2(paramValue) + ' = ' + shave(paramValue);
@@ -1420,6 +1417,7 @@
                 scopes: ['tool'],
                 recordable: true,
                 widget: 'slider',
+                tab: 'tools',
                 condition: paramUsedByCurrentTool,
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return shave(paramValue) + ' pixel' + ((paramValue == 1) ? '' : 's');
@@ -1443,6 +1441,7 @@
                 scopes: ['tool'],
                 recordable: true,
                 widget: 'slider',
+                tab: 'tools',
                 condition: paramUsedByCurrentTool,
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return shave(paramValue) + ' sprinkle' + ((paramValue == 1) ? '' : 's');
@@ -1466,6 +1465,7 @@
                 scopes: ['tool'],
                 recordable: true,
                 widget: 'slider',
+                tab: 'tools',
                 condition: paramUsedByCurrentTool,
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return 'volume ' + shave(paramValue);
@@ -1497,6 +1497,7 @@
                 scopes: ['tool'],
                 recordable: true,
                 widget: 'slider',
+                tab: 'tools',
                 condition: paramUsedByCurrentTool,
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return 'granularity ' + shave(paramValue);
@@ -1528,6 +1529,7 @@
                 scopes: ['tool'],
                 recordable: true,
                 widget: 'slider',
+                tab: 'tools',
                 condition: paramUsedByCurrentTool,
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return 'cell min ' + shave(paramValue);
@@ -1551,6 +1553,7 @@
                 scopes: ['tool'],
                 recordable: true,
                 widget: 'slider',
+                tab: 'tools',
                 condition: paramUsedByCurrentTool,
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return 'cell max ' + shave(paramValue);
@@ -1574,6 +1577,7 @@
                 scopes: ['tool'],
                 recordable: true,
                 widget: 'slider',
+                tab: 'tools',
                 condition: paramUsedByCurrentTool,
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return 'mask ' + hex2(paramValue);
@@ -1597,6 +1601,7 @@
                 scopes: ['tool'],
                 recordable: true,
                 widget: 'menu',
+                tab: 'tools',
                 condition: paramUsedByCurrentTool,
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return 'Line Cap ' + this.lineCap_by_symbol[paramValue].name;
@@ -1626,6 +1631,7 @@
                 scopes: ['tool'],
                 recordable: true,
                 widget: 'menu',
+                tab: 'tools',
                 condition: paramUsedByCurrentTool,
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return 'image ' + this.image_by_symbol[paramValue].name || (' #' + (paramValue + 1));
@@ -1655,6 +1661,7 @@
                 scopes: ['cam'],
                 recordable: true,
                 widget: 'menu',
+                tab: 'rules',
                 setValueFunction: function setValueFunction(paramMetaData, target, paramKey, paramValue, previousParamValue) {
                     target[paramKey] = paramValue;
                     // Changing the tool can change the visible parameters, so call updateParamVisibility.
@@ -1688,6 +1695,7 @@
                 scopes: ['rule'],
                 recordable: true,
                 widget: 'slider',
+                tab: 'rules',
                 condition: paramUsedByCurrentRule,
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return 'cell change ' + shave(paramValue);
@@ -1719,6 +1727,7 @@
                 scopes: ['rule'],
                 recordable: true,
                 widget: 'slider',
+                tab: 'rules',
                 condition: paramUsedByCurrentRule,
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return 'cell change ' + shave(paramValue);
@@ -1750,6 +1759,7 @@
                 scopes: ['rule'],
                 recordable: true,
                 widget: 'slider',
+                tab: 'rules',
                 condition: paramUsedByCurrentRule,
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return 'cell change delta ' + shave(paramValue);
@@ -1781,6 +1791,7 @@
                 scopes: ['rule'],
                 recordable: true,
                 widget: 'slider',
+                tab: 'rules',
                 condition: paramUsedByCurrentRule,
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return 'scale ' + shave(paramValue);
@@ -1812,6 +1823,7 @@
                 scopes: ['rule'],
                 recordable: true,
                 widget: 'slider',
+                tab: 'rules',
                 condition: paramUsedByCurrentRule,
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return 'scale ' + shave(paramValue);
@@ -1843,6 +1855,7 @@
                 scopes: ['rule'],
                 recordable: true,
                 widget: 'slider',
+                tab: 'rules',
                 condition: paramUsedByCurrentRule,
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return 'offset ' + shave(paramValue);
@@ -1866,6 +1879,7 @@
                 scopes: ['rule'],
                 recordable: true,
                 widget: 'slider',
+                tab: 'rules',
                 condition: paramUsedByCurrentRule,
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return 'shift ' + shave(paramValue);
@@ -1877,7 +1891,7 @@
                     return 0;
                 },
                 getMaxValueFunction: function getMaxValueFunction(paramMetaData, target) {
-                    return 8;
+                    return 10;
                 }
             },
 
@@ -1889,6 +1903,7 @@
                 scopes: ['rule'],
                 recordable: true,
                 widget: 'slider',
+                tab: 'rules',
                 condition: paramUsedByCurrentRule,
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return 'shift ' + shave(paramValue);
@@ -1900,7 +1915,7 @@
                     return 0;
                 },
                 getMaxValueFunction: function getMaxValueFunction(paramMetaData, target) {
-                    return 8;
+                    return 10;
                 }
             },
 
@@ -1912,6 +1927,7 @@
                 scopes: ['rule'],
                 recordable: true,
                 widget: 'slider',
+                tab: 'rules',
                 condition: paramUsedByCurrentRule,
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return 'shift ' + shave(paramValue);
@@ -1935,6 +1951,7 @@
                 scopes: ['rule'],
                 recordable: true,
                 widget: 'slider',
+                tab: 'rules',
                 condition: paramUsedByCurrentRule,
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return 'shift ' + shave(paramValue);
@@ -1958,6 +1975,7 @@
                 scopes: ['rule'],
                 recordable: true,
                 widget: 'slider',
+                tab: 'rules',
                 condition: paramUsedByCurrentRule,
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return 'shift ' + shave(paramValue);
@@ -1981,6 +1999,7 @@
                 scopes: ['cam'],
                 recordable: true,
                 widget: 'menu',
+                tab: 'simulation',
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return this.colorMap_by_symbol[paramValue].name;
                 },
@@ -2009,6 +2028,7 @@
                 scopes: ['cam'],
                 recordable: true,
                 widget: 'slider',
+                tab: 'simulation',
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return shave(paramValue) + ' step' + ((paramValue == 1) ? '' : 's');
                 },
@@ -2042,6 +2062,7 @@
                 scopes: ['cam'],
                 recordable: true,
                 widget: 'slider',
+                tab: 'simulation',
                 setValueFunction: function setValueFunction(paramMetaData, target, paramKey, paramValue, previousParamValue) {
                     target[paramKey] = paramValue;
                     this.scheduleTick();
@@ -2067,6 +2088,7 @@
                 type: 'integer',
                 scopes: ['cam'],
                 widget: 'slider',
+                tab: 'simulation',
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return 'speed ' + paramValue;
                 },
@@ -2088,6 +2110,7 @@
                 scopes: ['cam'],
                 description: 'This controls the play mode.',
                 widget: 'menu',
+                tab: 'simulation',
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return this.playMode_by_symbol[paramValue].name;
                 },
@@ -2115,6 +2138,7 @@
                 type: 'symbol',
                 scopes: ['cam'],
                 widget: 'menu',
+                tab: 'simulation',
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return this.recordMode_by_symbol[paramValue].name;
                 },
@@ -2132,6 +2156,40 @@
                 },
                 getMaxValueFunction: function getMaxValueFunction(paramMetaData, target) {
                     return this.recordMode_objects.length - 1;
+                }
+            },
+
+            {
+                param: 'analyzerSymbol',
+                name: 'Analyzer',
+                description: 'This controls the type of analyzer.',
+                type: 'symbol',
+                scopes: ['cam'],
+                recordable: true,
+                widget: 'menu',
+                tab: 'simulation',
+                setValueFunction: function setValueFunction(paramMetaData, target, paramKey, paramValue, previousParamValue) {
+                    target[paramKey] = paramValue;
+                    // Changing the tool can change the visible parameters, so call updateParamVisibility.
+                    this.updateParamVisibility();
+                },
+                getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
+                    return this.analyzer_by_symbol[paramValue].name;
+                },
+                getValueDescriptionFunction: function getValueDescriptionFunction(paramMetaData, target, paramValue) {
+                    return this.analyzer_by_symbol[paramValue].description;
+                },
+                widgetValueToParamValueFunction: function widgetValueToParamValueFunction(paramMetaData, target, widgetValue) {
+                    return this.analyzer_objects[widgetValue].symbol;
+                },
+                paramValueToWidgetValueFunction: function paramValueToWidgetValueFunction(paramMetaData, target, paramValue) {
+                    return this.analyzer_by_symbol[paramValue].index;
+                },
+                getMinValueFunction: function getMinValueFunction(paramMetaData, target) {
+                    return 0;
+                },
+                getMaxValueFunction: function getMaxValueFunction(paramMetaData, target) {
+                    return this.analyzer_objects.length - 1;
                 }
             },
 
@@ -2411,39 +2469,6 @@
             },
 
             {
-                param: 'analyzerSymbol',
-                name: 'Analyzer',
-                description: 'This controls the type of analyzer.',
-                type: 'symbol',
-                scopes: ['cam'],
-                recordable: true,
-                widget: 'menu',
-                setValueFunction: function setValueFunction(paramMetaData, target, paramKey, paramValue, previousParamValue) {
-                    target[paramKey] = paramValue;
-                    // Changing the tool can change the visible parameters, so call updateParamVisibility.
-                    this.updateParamVisibility();
-                },
-                getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
-                    return this.analyzer_by_symbol[paramValue].name;
-                },
-                getValueDescriptionFunction: function getValueDescriptionFunction(paramMetaData, target, paramValue) {
-                    return this.analyzer_by_symbol[paramValue].description;
-                },
-                widgetValueToParamValueFunction: function widgetValueToParamValueFunction(paramMetaData, target, widgetValue) {
-                    return this.analyzer_objects[widgetValue].symbol;
-                },
-                paramValueToWidgetValueFunction: function paramValueToWidgetValueFunction(paramMetaData, target, paramValue) {
-                    return this.analyzer_by_symbol[paramValue].index;
-                },
-                getMinValueFunction: function getMinValueFunction(paramMetaData, target) {
-                    return 0;
-                },
-                getMaxValueFunction: function getMaxValueFunction(paramMetaData, target) {
-                    return this.analyzer_objects.length - 1;
-                }
-            },
-
-            {
                 param: 'analyzerEnabled',
                 name: 'Analyzer Enabled',
                 description: 'Analyzer enabled.',
@@ -2527,6 +2552,8 @@
                     var phaseOffset = this.phaseOffset;
                     var phaseShiftX = this.phaseShiftX;
                     var phaseShiftY = this.phaseShiftY;
+                    var phaseShiftXRotated;
+                    var phaseShiftYRotated;
                     var phaseShiftCell = this.phaseShiftCell;
                     var phaseShiftStep = this.phaseShiftStep;
                     var frob = this.frob;
@@ -2629,6 +2656,8 @@
                             nextCol = 1; nextRow = cellBufferWidth;
                             nextRowSkip = cellGutter * 2;
                             kernelRight = 1; kernelDown = 3;
+                            phaseShiftXRotated = phaseShiftX;
+                            phaseShiftYRotated = phaseShiftY;
 //   <if test="spinScanOrder">
                             break;
                         case 1:
@@ -2637,6 +2666,8 @@
                             nextCol = cellBufferWidth; nextRow = -1;
                             nextRowSkip = -(cellBufferWidth * cellHeight) - cellGutter;
                             kernelRight = 3; kernelDown = -1;
+                            phaseShiftXRotated = phaseShiftY;
+                            phaseShiftYRotated = phaseShiftX;
                             break;
                         case 2:
                             width = cellWidth; height = cellHeight;
@@ -2644,6 +2675,8 @@
                             nextCol = -1; nextRow = -cellBufferWidth;
                             nextRowSkip = cellGutter * -2;
                             kernelRight = -1; kernelDown = -3;
+                            phaseShiftXRotated = phaseShiftX;
+                            phaseShiftYRotated = phaseShiftY;
                             break;
                         case 3:
                             width = cellHeight; height = cellWidth;
@@ -2651,11 +2684,13 @@
                             nextCol = -cellBufferWidth; nextRow = 1;
                             nextRowSkip = (cellBufferWidth * cellHeight) + 1;
                             kernelRight = -3; kernelDown = 1;
+                            phaseShiftXRotated = phaseShiftY;
+                            phaseShiftYRotated = phaseShiftX;
                             break;
                     }
 //   </if>
 
-//   <slot name="cellLoopBeginY">
+//   <slot name="cellLoopBegin">
 
 //     <slot name="cellLoopBeginY">
                     for (var cellY = 0;
@@ -2692,23 +2727,23 @@
 //     <slot name="calculateSpatioTemporalCellularPhase">
                             spatioTemporalCellularPhase =
                                     (Math.floor(phaseOffset) +
-                                     (cellX >> phaseShiftX) +
-                                     (cellY >> phaseShiftY) +
+                                     (cellX >> phaseShiftXRotated) +
+                                     (cellY >> phaseShiftYRotated) +
                                      ((step & 0xffff) >> phaseShiftStep) +
                                      (c >> phaseShiftCell)) &
                                     kernelMask;
 //     </slot>
 
-//     <slot name="invertPhaseIfCellBit80Set">
+//     <if test="invertPhaseIfCellBit80Set">
                             if (c & 0x80) {
                                 spatioTemporalCellularPhase =
                                     15 - spatioTemporalCellularPhase;
                             }
-//     </slot>
+//     </if>
 
 //     <slot name="selectKernelBytes">
                             kernelBytes =
-                                    ruleKernels[spatioTemporalCellularPhase];
+                                ruleKernels[spatioTemporalCellularPhase];
 //     </slot>
 
 //     <slot name="sumError">
@@ -2783,11 +2818,6 @@
                     var cellGutter = this.cellGutter;
                     var cellBufferWidth = this.cellBufferWidth;
                     var step = this.step;
-                    var phaseOffset = this.phaseOffset;
-                    var phaseShiftX = this.phaseShiftX;
-                    var phaseShiftY = this.phaseShiftY;
-                    var phaseShiftCell = this.phaseShiftCell;
-                    var phaseShiftStep = this.phaseShiftStep;
                     var frob = this.frob;
                     var unfrob = this.unfrob;
                     var frobTarget = this.frobTarget;
@@ -2805,7 +2835,6 @@
                     var height;
                     var kernelMask;
                     var kernelBytes;
-                    var spatioTemporalCellularPhase;
                     var cell;
 
                     // Make the ruleKernels for the rule.
@@ -5154,7 +5183,7 @@
 
     // ruleFunction_Margolus_dendrite computes the dendrite rule
     // Margolus neighborhood lookup table.
-    // 
+    //
     // Cellular Automata Machines, p. 167, 15.7 Diffusion-limited
     // aggregation.
     //
@@ -5184,7 +5213,7 @@
                 state.c0,
                 // If just one of four neighbors has a particle, then
                 // take on the value of the opposite cell, so the
-                // particle reflects to the opposite corner, 
+                // particle reflects to the opposite corner,
                 // traveling diagonally.
                 state.opp0,
                 // If two of the four neighbors are particles, then in
@@ -5215,21 +5244,21 @@
     // Margolus neighborhood lookup table.
     //
     // Cellular Automata Machines, p. 190, section 17.3, Spins Only.
-    // 
+    //
     // This models a spin glass, which is a matrix of atoms with
     // magnetic spins (up or down).
-    // 
+    //
     // https://en.wikipedia.org/wiki/Spin_glass
-    // 
+    //
     // A spin glass is a disordered magnet with frustrated
     // interactions, augmented by stochastic positions of the spins,
     // where conflicting interactions, namely both ferromagnetic and
     // also antiferromagnetic bonds, are randomly distributed with
     // comparable frequency. The term "glass" comes from an analogy
     // between the magnetic disorder in a spin glass and the
-    // positional disorder of a conventional, chemical glass, e.g., 
+    // positional disorder of a conventional, chemical glass, e.g.,
     // a window glass.
-    // 
+    //
     // Spin glasses display many metastable structures, leading to a
     // plenitude of time scales which are difficult to explore
     // experimentally or in simulations.
@@ -6891,11 +6920,13 @@
                     var toolMask = activeToolDict.toolMask;
                     var toolVolume = activeToolDict.toolVolume;
                     var toolGranularity = activeToolDict.toolGranularity;
+                    var cellWidth = this.cellWidth;
+                    var cellHeight = this.cellHeight;
 
-                    var clippedLeft = Math.max(0, Math.min(this.cellWidth, left));
-                    var clippedRight = Math.max(0, Math.min(this.cellWidth, right));
-                    var clippedTop = Math.max(0, Math.min(this.cellHeight, top));
-                    var clippedBottom = Math.max(0, Math.min(this.cellHeight, bottom));
+                    var clippedLeft = Math.max(0, Math.min(cellWidth, left));
+                    var clippedRight = Math.max(0, Math.min(cellWidth, right));
+                    var clippedTop = Math.max(0, Math.min(cellHeight, top));
+                    var clippedBottom = Math.max(0, Math.min(cellHeight, bottom));
 
                     if ((clippedLeft >= clippedRight) ||
                         (clippedTop >= clippedBottom)) {
@@ -6924,7 +6955,9 @@
                         var dy =
                             (Math.random() < 0.5) ? -1 : 1;
 
-                        var grainSize = 
+dx = 1;
+dy = 0;
+                        var grainSize =
                             Math.max(
                                 1,
                                 Math.min(
@@ -6938,14 +6971,14 @@
                         var grainY = 1 + Math.floor(Math.random() * grainRange);
 
                         var grainLeft = left + grainX;
-                        var grainTop = top  + grainY;
+                        var grainTop = top + grainY;
                         var grainRight = grainLeft + grainSize;
                         var grainBottom = grainTop + grainSize;
 
-                        var startX = (dx > 0) ? grainLeft   : (grainRight  - 1);
-                        var endX   = (dx > 0) ? grainRight  : (grainLeft   - 1);
-                        var startY = (dy > 0) ? grainTop    : (grainBottom - 1);
-                        var endY   = (dy > 0) ? grainBottom : (grainTop    - 1);
+                        var startX = (dx > 0) ? grainLeft         : (grainRight  - 1);
+                        var endX   = (dx > 0) ? grainRight        : (grainLeft   - 1);
+                        var startY = (dy > 0) ? grainTop          : (grainBottom - 1);
+                        var endY   = (dy > 0) ? grainBottom       : (grainTop    - 1);
 
                         for (var y = startY;
                              y != endY;
@@ -6955,14 +6988,27 @@
                                  x != endX;
                                  x += dx) {
 
-                                var cellIndexFrom =
+                                var cellIndexTo =
                                     (x + 1) +
                                     ((y + 1) * this.cellBufferWidth);
 
-                                var cellIndexTo =
-                                    cellIndexFrom -
-                                    dx -
-                                    (dy * this.cellBufferWidth);
+                                var x2 = x + dx;
+                                if (x2 < 0) {
+                                    x2 += cellWidth;
+                                } else if (x2 >= cellWidth) {
+                                    x2 -= cellWidth;
+                                }
+
+                                var y2 = y + dy;
+                                if (y2 < 0) {
+                                    y2 += cellHeight;
+                                } else if (y2 >= cellHeight) {
+                                    y2 -= cellHeight;
+                                }
+
+                                var cellIndexFrom =
+                                    (x2 + 1) +
+                                    ((y2 + 1) * this.cellBufferWidth);
 
                                 cells[cellIndexTo] =
                                     (cells[cellIndexTo] & ~toolMask) |
@@ -7066,31 +7112,31 @@
                 description: 'Head painter.',
                 toolLayer: 10,
                 onDisabledEnd: function onDisabledEnd(analyzerDict) {
-                    LOG("analyzer headPainter onDisabledEnd:");
+                    LOG('analyzer headPainter onDisabledEnd:');
                 },
                 onEnabling: function onEnabling(analyzerDict) {
 
-                    //LOG("analyzer headPainter onEnabling: begin", "webCamState", this.webCamState, "headTrackerState", this.headTrackerState);
+                    //LOG('analyzer headPainter onEnabling: begin', 'webCamState', this.webCamState, 'headTrackerState', this.headTrackerState);
 
                     if (this.webCamState == 'broken') {
-                        LOG("analyzer headPainter onEnabling: webcam broken so disabling.");
+                        LOG('analyzer headPainter onEnabling: webcam broken so disabling.');
                         this.setValue(this, 'analyzerStatus', 'Analyzer disabled because webcam broken.');
                         this.disableAnalyzer();
                         return true;
                     }
 
                     if (this.headTrackerState == 'broken') {
-                        LOG("analyzer headPainter onEnabling: head tracker broken so disabling.")
+                        LOG('analyzer headPainter onEnabling: head tracker broken so disabling.')
                         this.setValue(this, 'analyzerStatus', 'Analyzer disabled because head tracker broken.');
                     }
 
                     if (!this.webCamEnabled) {
-                        LOG("analyzer headPainter onEnabling: enabling webcam");
+                        LOG('analyzer headPainter onEnabling: enabling webcam');
                         this.enableWebCam();
                     }
 
                     if (!this.headTrackerEnabled) {
-                        LOG("analyzer headPainter onEnabling: enabling head tracker");
+                        LOG('analyzer headPainter onEnabling: enabling head tracker');
                         this.enableHeadTracker();
                     }
 
@@ -7110,7 +7156,7 @@
                 },
                 onEnabledBegin: function onEnabledBegin(analyzerDict) {
 
-                    LOG("analyzer headPainter onEnabledBegin: setting up params and adding tool");
+                    LOG('analyzer headPainter onEnabledBegin: setting up params and adding tool');
 
                     if (!analyzerDict.activeToolDict) {
                         analyzerDict.activeToolDict = {
@@ -7128,8 +7174,8 @@
 
                     this.setValue(this, 'colorMapSymbol', 'defaultFadeOut100');
                     this.setValue(this, 'ruleSymbol', 'FuzzyMarble');
-                    this.setValue(this, 'phaseShiftX', 8);
-                    this.setValue(this, 'phaseShiftY', 8);
+                    this.setValue(this, 'phaseShiftX', 10);
+                    this.setValue(this, 'phaseShiftY', 10);
                     this.setValue(this, 'phaseShiftCell', 8);
                     this.setValue(this, 'phaseShiftStep', 4);
                     this.setValue(this, 'frob', 0);
@@ -7238,7 +7284,7 @@
                 },
                 onEnabledEnd: function onEnabledEnd(analyzerDict) {
 
-                    LOG("analyzer headPainter onEnabledEnd: removing tool");
+                    LOG('analyzer headPainter onEnabledEnd: removing tool');
 
                     this.removeActiveTool(
                         analyzerDict.activeToolDict.activeToolSymbol, // Remove this particular activeTool.
@@ -7248,18 +7294,18 @@
                 },
                 onDisabling: function onDisabling(analyzerDict) {
 
-                    LOG("analyzer headPainter onDisabling:", "webCamState", this.webCamState, "headTrackerState", this.headTrackerState);
+                    LOG('analyzer headPainter onDisabling:', 'webCamState', this.webCamState, 'headTrackerState', this.headTrackerState);
 
                     if (this.webCamState == 'enabled') {
 
-                        LOG("analyzer headPainter onDisabling: disabling webCam");
+                        LOG('analyzer headPainter onDisabling: disabling webCam');
                         this.disableWebCam();
 
                     }
 
                     if (this.headTrackerState == 'enabled') {
 
-                        LOG("analyzer headPainter onDisabling: disabling headTracker");
+                        LOG('analyzer headPainter onDisabling: disabling headTracker');
                         this.disableHeadTracker();
 
                     }
@@ -7268,14 +7314,14 @@
                         (this.webCamState == 'disabled') &&
                         (this.headTrackerState == 'disabled');
 
-                    LOG("analyzer headPainter onDisabling: finally", "webCamState", this.webCamState, "headTrackerState", this.headTrackerState, "done", done);
+                    LOG('analyzer headPainter onDisabling: finally', 'webCamState', this.webCamState, 'headTrackerState', this.headTrackerState, 'done', done);
 
                     return done;
 
                 },
                 onDisabledBegin: function onDisabledBegin(analyzerDict) {
 
-                    LOG("analyzer onDisabledBegin:");
+                    LOG('analyzer onDisabledBegin:');
 
                 }
             }
@@ -7295,6 +7341,48 @@
         [
 
             {
+                symbol: 'fullscreenMode',
+                recordable: false,
+                getNameFunction: function getNameFunction(commandDict) {
+                    return 'Full Screen'
+                },
+                getDescriptionFunction: function getDescriptionFunction(commandDict) {
+                    return 'Full screen mode.';
+                },
+                isVisibleFunction: function isVisibleFunction(commandDict) {
+                    return !this.fullScreen;
+                },
+                isEnabledFunction: function isEnabledFunction(commandDict) {
+                    return !this.fullScreen;
+                },
+                commandFunction: function commandFunction(commandDict, params) {
+                    this.fullScreenMode();
+                    this.updateCommands();
+                }
+            },
+
+            {
+                symbol: 'windowMode',
+                recordable: false,
+                getNameFunction: function getNameFunction(commandDict) {
+                    return 'Window';
+                },
+                getDescriptionFunction: function getDescriptionFunction(commandDict) {
+                    return 'Window mode.';
+                },
+                isVisibleFunction: function isVisibleFunction(commandDict) {
+                    return this.fullScreen;
+                },
+                isEnabledFunction: function isEnabledFunction(commandDict) {
+                    return this.fullScreen;
+                },
+                commandFunction: function commandFunction(commandDict, params) {
+                    this.windowMode();
+                    this.updateCommands();
+                }
+            },
+
+            {
                 symbol: 'pause',
                 recordable: false,
                 getNameFunction: function getNameFunction(commandDict) {
@@ -7311,6 +7399,7 @@
                 },
                 commandFunction: function commandFunction(commandDict, params) {
                     this.pause();
+                    this.tick();
                     this.updateCommands();
                 }
             },
@@ -7353,6 +7442,9 @@
                 },
                 commandFunction: function commandFunction(commandDict, params) {
                     this.clearCells();
+                    if (this.paused) {
+                        this.tick();
+                    }
                 }
             },
 
@@ -7373,6 +7465,32 @@
                 },
                 commandFunction: function commandFunction(commandDict, params) {
                     this.randomizeCells();
+                    if (this.paused) {
+                        this.tick();
+                    }
+                }
+            },
+
+            {
+                symbol: 'initialize',
+                recordable: true,
+                getNameFunction: function getNameFunction(commandDict) {
+                    return 'Initialize';
+                },
+                getDescriptionFunction: function getDescriptionFunction(commandDict) {
+                    return 'Initialize the cells.';
+                },
+                isVisibleFunction: function isVisibleFunction(commandDict) {
+                    return true;
+                },
+                isEnabledFunction: function isEnabledFunction(commandDict) {
+                    return true;
+                },
+                commandFunction: function commandFunction(commandDict, params) {
+                    this.initializeCells();
+                    if (this.paused) {
+                        this.tick();
+                    }
                 }
             },
 
@@ -7691,7 +7809,7 @@
 
             {
                 symbol: 'shift',
-                hint: 'Shift the phase offse with the horizontal mouse wheel, or changing the Phase Offset slider.',
+                hint: 'Shift the phase offset with the horizontal mouse wheel, or changing the Phase Offset slider.',
                 url: null,
                 urlLabel: ''
             },
@@ -7916,7 +8034,7 @@
                     toolDict,
                     activeToolDict,
                     left, top, right, bottom,
-                    pixels, 
+                    pixels,
                     cells, cellGutter, cellBufferWidth,
                     cellLeft, cellTop, cellRight, cellBottom) {
 
@@ -8162,7 +8280,7 @@
                 recordingTools: false
             },
             {
-                name: 'scriptParameterChanges',
+                symbol: 'scriptParameterChanges',
                 name: 'Script: Parameter Changes',
                 description: 'Record script of parameter changes.',
                 recordingSnapshot: false,
@@ -8205,6 +8323,62 @@
                 recordingCommands: true,
                 recordingTools: true
             }
+        ]);
+
+
+    ////////////////////////////////////////////////////////////////////////
+    // The tab type.
+
+
+    defineType(
+        'tab',
+        CAM6.prototype,
+        null,
+        ['symbol'],
+        [
+
+            {
+                symbol: 'commands',
+                name: 'Commands',
+                description: 'Commands tab.',
+                value: 'command'
+            },
+
+            {
+                symbol: 'tools',
+                name: 'Tools',
+                description: 'Tools tab.',
+                value: 'tools'
+            },
+
+            {
+                symbol: 'rules',
+                name: 'Rules',
+                description: 'Rules tab.',
+                value: 'rules'
+            },
+
+            {
+                symbol: 'simulation',
+                name: 'Simulation',
+                description: 'Simulation tab.',
+                value: 'simulation'
+            },
+
+            {
+                symbol: 'hints',
+                name: 'Hints',
+                description: 'Hints tab.',
+                value: 'hints'
+            },
+
+            {
+                symbol: 'help',
+                name: 'Help',
+                description: 'Help tab.',
+                value: 'help'
+            }
+
         ]);
 
 
@@ -8359,9 +8533,13 @@
         this.params = {};
 
         // jQuery DOM objects.
+        this.$window = null;
         this.$parent = null;
         this.$root = null;
         this.$content = null;
+        this.$tabsFrame = null;
+        this.$tabsContainer = null;
+        this.$cellCanvasFrame = null;
         this.$cellCanvasContainer = null;
         this.$webCamVideo = null;
         this.$headTrackerInput = null;
@@ -8369,23 +8547,31 @@
         this.$compositionOverlay = null;
         this.$feedbackOverlay = null;
         this.$headTrackerOverlay = null;
-        this.$commandsDiv = null;
-        this.$paramsDiv = null;
-        this.$hintsDiv = null;
-        this.$wikiDiv = null;
+        this.$interfaceFrame = null;
+        this.$interfaceContainer = null;
+        this.$initializeDialog = null;
+        this.$initializeDialogText = null;
+        this.$initializeDialogPre = null;
+        this.$initializeDialogTextArea = null;
 
         this.useGUI = true;
-        this.cellWidth = 320;
-        this.cellHeight = 240;
+        //this.cellWidth = 256;
+        //this.cellHeight = 256;
+        //this.cellWidth = 320;
+        //this.cellHeight = 240;
+        this.cellWidth = Math.floor(16 * 30);
+        this.cellHeight = Math.floor(9 * 30 * 0.82 * 0.5) * 2.0;
         this.cellGutter = 1;
         this.cellScale = 2;
         this.doHistogram = true;
+        //this.doHistogram = false;
         this.histogramGapHeight = 1;
         this.histogramToolCellHeight = 5;
         this.histogramHeaderHeight = 5;
         this.histogramGraphHeight = 30;
         this.randomizeError = 0;
         this.spinScanOrder = true;
+        this.invertPhaseIfCellBit80Set = false;
         this.analyzerEnabled = false;
         this.webCamEnabled = false;
         this.headTrackerEnabled = false;
@@ -8407,11 +8593,11 @@
         this.toolImageSymbol = 'StupidFunClubLogo';
         this.ruleSymbol = 'TwistyMarble';
         this.frobTarget = 0;
-        this.frob = -40;
+        this.frob = 0;
         this.unfrob = 0.3;
         this.frobScale = -0.02;
         this.phaseScale = 0.005;
-        this.phaseOffset = 0;
+        this.phaseOffset = 1;
         this.phaseShiftX = 3;
         this.phaseShiftY = 3;
         this.phaseShiftCell = 3;
@@ -8444,6 +8630,7 @@
         this.cells1 = null;
         this.colorCells = null;
         this.animationTimer = null;
+        this.fullScreen = false;
         this.paused = false;
         this.steps = 0;
         this.trackingCells = false;
@@ -8504,6 +8691,8 @@
         this.headTrackerAngle = 0;
         this.activeTools = [];
         this.userTools = {};
+        this.tabs = [];
+        this.currentTabIndex = null;
 
     };
 
@@ -8802,7 +8991,7 @@
     // playScript plays the script, if playing.
     CAM6.prototype.playScript = function playScript() {
 
-        if (!this.scriptPlaying) {
+        if (this.paused || !this.scriptPlaying) {
             return;
         }
 
@@ -8975,7 +9164,7 @@
                     (this.playSpeed > 0)
                         ? scriptDict.newParams
                         : scriptDict.oldParams;
-               
+
                 var target = this; // TODO
 
                 this.playParams(
@@ -9194,7 +9383,7 @@
             // new scriptDict, so we are all done!
             return;
         }
-       
+
         // TODO: record target
         var scriptDict = {
             step: this.step - this.scriptRecordingStartStep,
@@ -9283,6 +9472,7 @@
 
     };
 
+
     // disableWebCam disables the WebCam.
     CAM6.prototype.disableWebCam = function disableWebCam() {
 
@@ -9310,7 +9500,7 @@
 
                     if (this.webCamEnabled) {
 
-                        LOG("updateWebCam: webCam enabled but broken, so disabling it.");
+                        LOG('updateWebCam: webCam enabled but broken, so disabling it.');
 
                         this.disableWebCam();
 
@@ -9401,7 +9591,7 @@
                                 var chromeVersion =
                                         parseInt(window.navigator.appVersion.match(/Chrome\/(\d+)\./)[1], 10);
                                 if (chromeVersion < 20) {
-                                    videoSelector = "video";
+                                    videoSelector = 'video';
                                 }
                             }
 
@@ -9425,7 +9615,7 @@
 
                             this.webCamStream = null;
 
-                            LOG("updateWebCam: calling getUserMedia.");
+                            LOG('updateWebCam: calling getUserMedia.');
 
                             navigator.getUserMedia(
                                 videoSelector,
@@ -9435,7 +9625,7 @@
 
                                     if (this.webCamState != 'enabling') {
 
-                                        LOG("Success from getUserMedia while not in enabling state, so ignorning.", "webCamState", this.webCamState);
+                                        LOG('Success from getUserMedia while not in enabling state, so ignorning.', 'webCamState', this.webCamState);
 
                                         stream.stop();
 
@@ -9473,7 +9663,7 @@
 
                                     if (this.webCamState != 'enabling') {
 
-                                        LOG("Error from getUserMedia while not in enabling state, so ignorning.", "webCamState", this.webCamState);
+                                        LOG('Error from getUserMedia while not in enabling state, so ignorning.', 'webCamState', this.webCamState);
 
                                     } else {
 
@@ -9603,7 +9793,7 @@
         }
 
     };
-            
+
 
     CAM6.prototype.updateHeadTracker = function updateHeadTracker() {
 
@@ -9617,7 +9807,7 @@
 
                     if (this.headTrackerEnabled) {
 
-                        LOG("updateHeadTracker: headTracker enabled but broken, so disabling it.");
+                        LOG('updateHeadTracker: headTracker enabled but broken, so disabling it.');
 
                         this.disableHeadTracker();
 
@@ -9702,13 +9892,13 @@
                                             'headtrackrStatus',
                                             $.proxy(
                                                 function handle_headTrackerStatus(event) {
-                                                    
-                                                    LOG("handle_headTrackerStatus", event.status);
-                                                    
+
+                                                    LOG('handle_headTrackerStatus', event.status);
+
                                                     if (!this.headTrackerEnabled) {
                                                         return;
                                                     }
-                                                    
+
                                                     if (this.headTrackerState == 'enabling') {
                                                         if ((event.status == 'detecting') ||
                                                             (event.status == 'found')) {
@@ -9744,7 +9934,7 @@
                                             $.proxy(
                                                 function handle_facetrackingEvent(event) {
 
-                                                    //LOG("handle_facetrackingEvent", event);
+                                                    //LOG('handle_facetrackingEvent', event);
 
                                                     if (!this.headTrackerEnabled ||
                                                         (!this.headTrackerState == 'enabled')) {
@@ -9758,7 +9948,7 @@
 
                                                     this.headTrackerTrackingLast = this.headTrackerTracking;
                                                     this.headTrackerTracking = this.headTrackerDetection == 'CS';
-                                                   
+
                                                     if (!this.headTrackerTrackingLast &&
                                                         this.headTrackerTracking) {
                                                         this.headTrackerTrackingStartTime = Date.now();
@@ -9846,8 +10036,8 @@
 
                 case 'enabling':
 
-                    // We're trying to enable the head tracker, waiting 
-                    // the the callback to fire, which will bump is to 
+                    // We're trying to enable the head tracker, waiting
+                    // the the callback to fire, which will bump is to
                     // the next state.
 
                     done = true;
@@ -10013,7 +10203,31 @@
 
 
     // scaleCanvas sets the scale of the canvas.
+    CAM6.prototype.scaleCanvasToWindow = function scaleCanvasToWindow() {
+        var windowWidth = this.$window.width();
+        var windowHeight = this.$window.height();
+        var scale = Math.min(
+            windowWidth / this.cellWidth,
+            windowHeight / this.cellHeight);
+        this.cellScale = scale;
+        this.scaleCanvas();
+
+        // Must call tick to refresh if paused.
+        // This gets called on startup before the cells are defined, so be careful!
+        if (this.paused && this.cells0) {
+            this.tick();
+        }
+    };
+
+
+    // scaleCanvas sets the scale of the canvas.
     CAM6.prototype.scaleCanvas = function scaleCanvas() {
+
+        this.$cellCanvasFrame
+            .css({
+                width: (this.cellCanvasPixelWidth * this.cellScale) + 'px',
+                height: (this.cellCanvasPixelHeight * this.cellScale) + 'px'
+            });
 
         this.$cellCanvasContainer
             .css({
@@ -10087,6 +10301,9 @@
             return;
         }
 
+        this.$window =
+            $(window);
+
         this.$parent =
             this.params.$parent ||
             this.$parent ||
@@ -10102,10 +10319,25 @@
                 .addClass('cam6-content')
                 .appendTo(this.$root);
 
+        this.$tabsFrame =
+            $('<div/>')
+                .addClass('cam6-tabsFrame')
+                .appendTo(this.$content);
+
+        this.$tabsContainer =
+            $('<div/>')
+                .addClass('cam6-tabsContainer')
+                .appendTo(this.$tabsFrame);
+
+        this.$cellCanvasFrame =
+            $('<div/>')
+                .addClass('cam6-cellCanvasFrame')
+                .appendTo(this.$content);
+
         this.$cellCanvasContainer =
             $('<div/>')
                 .addClass('cam6-cellCanvasContainer')
-                .appendTo(this.$content);
+                .appendTo(this.$cellCanvasFrame);
 
         this.$webCamVideo =
             $('<video/>')
@@ -10137,38 +10369,118 @@
                 .addClass('cam6-headTrackerOverlay')
                 .appendTo(this.$cellCanvasContainer);
 
-        this.$commandsDiv =
+        this.$interfaceFrame =
             $('<div/>')
-                .addClass('cam6-commandsDiv')
+                .addClass('cam6-interfaceFrame')
                 .appendTo(this.$content);
 
-        this.$paramsDiv =
+        this.$interfaceContainer =
             $('<div/>')
-                .addClass('cam6-paramsDiv')
-                .appendTo(this.$content);
+                .addClass('cam6-interfaceContainer')
+                .appendTo(this.$interfaceFrame);
 
-        this.$hintsDiv =
-            $('<div/>')
-                .addClass('cam6-hintsDiv')
-                .appendTo(this.$content);
-
-        this.$wikiDiv =
-            $('<div/>')
-                .addClass('cam6-wikiDiv')
-                .appendTo(this.$root);
-
+        this.makeTabsGUI();
         this.makeCommandsGUI();
         this.makeParamsGUI();
         this.makeHintsGUI();
         this.makeWikiGUI();
 
+        this.$window.on('resize', $.proxy(this.scaleCanvasToWindow, this));
+
+        this.scaleCanvasToWindow();
+
     };
 
 
+    CAM6.prototype.makeTabsGUI = function makeTabsGUI() {
+
+        this.$tabsContainer
+            .html('');
+
+        var $tabIcon =
+            $('<div/>')
+                .addClass('cam6-tabIcon')
+                .attr({
+                    title: 'Click to toggle tabs.'
+                })
+                .on('click', $.proxy(function(event) {
+
+                    this.$tabsFrame
+                        .toggleClass('cam6-tabsFrame-opened');
+
+                    if (this.currentTabIndex !== null) {
+                        var currentTabDict =
+                            this.tab_objects[this.currentTabIndex];
+
+                        currentTabDict.$panel
+                            .toggleClass('cam6-tabPanel-active');
+                    }
+
+                }, this))
+                .appendTo(this.$tabsContainer);
+
+        for (var tabIndex = 0, tabCount = this.tab_objects.length;
+             tabIndex < tabCount;
+             tabIndex++) {
+
+            (function(tabIndex) {
+
+                var tabDict = this.tab_objects[tabIndex];
+
+                tabDict.$tab =
+                    $('<div/>')
+                        .addClass('cam6-tab')
+                        .text(tabDict.name)
+                        .attr({
+                            title: tabDict.description
+                        })
+                        .on('click', $.proxy(function(event) {
+
+                            if (this.currentTabIndex !== null) {
+
+                                var currentTabDict =
+                                    this.tab_objects[this.currentTabIndex];
+
+                                currentTabDict.$tab
+                                    .removeClass('cam6-tab-active');
+                                currentTabDict.$panel
+                                    .removeClass('cam6-tabPanel-active');
+
+                            }
+
+                            if (this.currentTabIndex === tabDict.index) {
+
+                                this.currentTabIndex = null;
+
+                            } else {
+
+                                this.currentTabIndex = tabDict.index;
+
+                                tabDict.$tab
+                                    .addClass('cam6-tab-active');
+                                tabDict.$panel
+                                    .addClass('cam6-tabPanel-active');
+
+                            }
+
+                        }, this))
+                        .appendTo(this.$tabsContainer);
+
+                tabDict.$panel =
+                    $('<div/>')
+                        .addClass('cam6-tabPanel cam6-tabPanel-' + tabDict.symbol)
+                        .appendTo(this.$content);
+
+            }).call(this, tabIndex);
+
+        }
+
+    };
+
     CAM6.prototype.makeCommandsGUI = function makeCommandsGUI() {
 
-        this.$commandsDiv
-            .html('');
+        var commandsTabDict =
+            this.get_tab_by_symbol('commands');
 
         for (var commandIndex = 0, commandCount = this.command_objects.length;
              commandIndex < commandCount;
@@ -10212,7 +10524,7 @@
 
                             },
                             this))
-                        .appendTo(this.$commandsDiv);
+                        .appendTo(commandsTabDict.$panel);
 
                 commandDict.$button =
                     $button;
@@ -10228,9 +10540,6 @@
 
     CAM6.prototype.makeParamsGUI = function makeParamsGUI() {
 
-        this.$paramsDiv
-            .html('');
-
         var target = this; // TODO
 
         for (var paramIndex = 0, paramCount = this.paramMetaData_objects.length;
@@ -10243,10 +10552,13 @@
                     this.paramMetaData_objects[paramIndex];
 
                 var widget = paramMetaData.widget;
-
-                if (!widget) {
+                var tab = paramMetaData.tab;
+                if (!widget || !tab) {
                     return;
                 }
+
+                var tabDict =
+                    this.get_tab_by_symbol(tab);
 
                 var $div =
                     $('<div/>')
@@ -10254,7 +10566,7 @@
                         .attr({
                             title: paramMetaData.description
                         })
-                        .appendTo(this.$paramsDiv);
+                        .appendTo(tabDict.$panel);
                 paramMetaData.$div = $div
 
                 var $title =
@@ -10283,7 +10595,7 @@
                                     slide: $.proxy(
                                         function slide(event, ui) {
 
-                                            this.setValue(this, 
+                                            this.setValue(this,
                                                 paramMetaData.param,
                                                 paramMetaData.widgetValueToParamValueFunction
                                                     ? paramMetaData.widgetValueToParamValueFunction.call(
@@ -10302,7 +10614,7 @@
                                 .addClass('cam6-paramMenu')
                                 .change($.proxy(
                                     function(event) {
-                                        this.setValue(this, 
+                                        this.setValue(this,
                                             paramMetaData.param,
                                             paramMetaData.widgetValueToParamValueFunction
                                                 ? paramMetaData.widgetValueToParamValueFunction.call(
@@ -10355,6 +10667,9 @@
 
     CAM6.prototype.makeHintsGUI = function makeHintsGUI() {
 
+        var hintsTabDict =
+            this.get_tab_by_symbol('hints');
+
         for (var hintIndex = 0, hintCount = this.hint_objects.length;
              hintIndex < hintCount;
              hintIndex++) {
@@ -10366,7 +10681,7 @@
                 $('<div/>')
                     .addClass('cam6-hintDiv')
                     .text(hintDict.hint + ' ')
-                    .appendTo(this.$hintsDiv);
+                    .appendTo(hintsTabDict.$panel);
 
             var url = hintDict.url;
             if (url) {
@@ -10388,14 +10703,14 @@
 
     CAM6.prototype.makeWikiGUI = function makeWikiGUI() {
 
-        this.$wikiDiv
-            .html('');
+        var helpTabDict =
+            this.get_tab_by_symbol('help');
 
         var $wikiHeader =
             $('<div/>')
                 .addClass('cam6-wikiHeader')
                 .html('Documentation and Wiki Links')
-                .appendTo(this.$wikiDiv);
+                .appendTo(helpTabDict.$panel);
 
         for (var chapterIndex = 0, chapterCount = this.chapter_objects.length;
              chapterIndex < chapterCount;
@@ -10412,7 +10727,7 @@
                 var $chapter =
                     $('<div/>')
                         .addClass('cam6-wikiChapter')
-                        .appendTo(this.$wikiDiv);
+                        .appendTo(helpTabDict.$panel);
 
                 var $chapterTop =
                     $('<div/>')
@@ -10625,7 +10940,7 @@
     // trackDown tracks a mouse down event.
     CAM6.prototype.trackDown = function trackDown(event) {
 
-        this.trackMove(event);
+        this.trackMoveSub(event);
 
         this.setValue(this, 'mouseButton', true);
         this.setValue(this, 'mouseDownX', this.mouseX);
@@ -10685,9 +11000,28 @@
 
         $(document)
             .on('mousemove.cam',
-                $.proxy(this.trackMove, this))
+                $.proxy(this.trackDrag, this))
             .on('mouseup.cam',
                 $.proxy(this.trackUp, this));
+
+        if (this.paused) {
+            this.tick();
+        }
+
+    };
+
+
+    // trackMove tracks a mouse move event.
+    CAM6.prototype.trackDrag = function trackDrag(event) {
+
+        event.stopPropagation();
+        event.preventDefault();
+
+        this.trackMoveSub(event);
+
+        if (this.paused) {
+            this.tick();
+        }
 
     };
 
@@ -10697,6 +11031,14 @@
 
         event.stopPropagation();
         event.preventDefault();
+
+        this.trackMoveSub(event);
+
+    };
+
+
+    // trackMoveSub tracks a mouse move event.
+    CAM6.prototype.trackMoveSub = function trackMoveSub(event) {
 
         var offset = this.$cellCanvas.offset();
         var x = event.pageX - offset.left;
@@ -10711,7 +11053,7 @@
     // trackUp tracks a mouse up event.
     CAM6.prototype.trackUp = function trackUp(event) {
 
-        this.trackMove(event);
+        this.trackMoveSub(event);
 
         this.setValue(this, 'mouseButton', false);
 
@@ -10755,6 +11097,11 @@
         this.$cellCanvas
             .on('mousemove.cam')
                 $.proxy(this.trackMove, this);
+
+        if (this.paused) {
+            this.tick();
+        }
+
     };
 
 
@@ -10863,6 +11210,52 @@
     };
 
 
+    // full screen mode.
+    CAM6.prototype.fullScreenMode = function fullScreenMode() {
+
+        if (this.fullScreen) {
+            return;
+        }
+
+        this.fullScreen = true;
+
+        var el =
+            this.$root[0];
+
+        if (el.requestFullscreen) {
+            el.requestFullscreen();
+        } else if (el.mozRequestFullScreen) {
+            el.mozRequestFullScreen();
+        } else if (el.webkitRequestFullscreen) {
+            el.webkitRequestFullscreen();
+        }
+
+    };
+
+
+    // window mode.
+    CAM6.prototype.windowMode = function windowMode() {
+
+        if (!this.fullScreen) {
+            return;
+        }
+
+        this.fullScreen = false;
+
+        var el =
+            document;
+
+        if (el.cancelFullscreen) {
+            el.cancelFullscreen();
+        } else if (el.mozCancelFullScreen) {
+            el.mozCancelFullScreen();
+        } else if (el.webkitCancelFullScreen) {
+            el.webkitCancelFullScreen();
+        }
+
+    };
+
+
     // pause pauses the simulation.
     CAM6.prototype.pause = function pause() {
 
@@ -10919,7 +11312,9 @@
 
         this.applyRule();
         this.playScript();
+        this.trackHistogram();
         this.applyTools();
+        this.wrapCells();
         this.applyAnalyzers();
         this.updateParams();
         this.renderCellsToCanvas();
@@ -10953,6 +11348,10 @@
     // applyAnalyzers performs data analysis processing,
     // to be done after applying the rule.
     CAM6.prototype.applyAnalyzers = function applyAnalyzers() {
+
+        if (this.paused) {
+            return;
+        }
 
         this.updateWebCam();
         this.updateHeadTracker();
@@ -11067,6 +11466,10 @@
 
     CAM6.prototype.updateParams = function updateParams() {
 
+        if (this.paused) {
+            return;
+        }
+
         if (this.unfrob) {
 
             var frob = this.frob;
@@ -11098,7 +11501,8 @@
     // renderCellsToCanvas renders the cells and histogram into the canvas.
     CAM6.prototype.renderCellsToCanvas = function renderCellsToCanvas() {
 
-        var cells = this.getCells();
+        var cells = this.paused ? this.getNextCells() : this.getCells();
+        //var cells = this.getCells();
         var cellWidth = this.cellWidth;
         var cellHeight = this.cellHeight;
         var cellGutter = this.cellGutter;
@@ -11401,7 +11805,7 @@
                     ((cellX == 18) && (cellY == 16+1))) {
                     cell = 1;
                 }
-               
+
                 cells[cellIndex] = cell;
                 cellIndex++;
 
@@ -11418,6 +11822,142 @@
     // clearCells clears the cell values.
     CAM6.prototype.clearCells = function clearCells() {
         this.setCellsValue(0);
+    };
+
+
+    // initializeCells initializes the cell values.
+    CAM6.prototype.initializeCells = function initializeCells() {
+
+        if (!this.$initializeDialog) {
+
+            this.$initializeDialog =
+                $('<div/>')
+                    .addClass('cam6-dialog')
+                    .appendTo(this.$root);
+
+            this.$initializeDialogText =
+                $('<div/>')
+                    .html(
+                        'Type some JavaScript code to initialize each cell.<br/>' +
+                        'The current value is in "cell", which you may change.<br/>' +
+                        'The following variables will be defined:<br/>'
+                    )
+                    .appendTo(this.$initializeDialog);
+
+            this.$initializeDialogPre =
+                $('<pre/>')
+                    .addClass('cam6-dialogPreBefore')
+                    .html(
+                        'var cellWidth = ' + this.cellWidth + '; // Width of cells.\n' +
+                        'var cellHeight = ' + this.cellHeight + '; // Height of cells.\n' +
+                        'var cellX; // Cell x location: 0 to ' + (this.cellWidth - 1) + '.\n' +
+                        'var cellY; // Cell y location: 0 to ' + (this.cellHeight - 1) + '.\n' +
+                        'var cell; // Current cell value: 0 to 255.\n'
+                    )
+                    .appendTo(this.$initializeDialog);
+
+            this.$initializeDialogTextArea =
+                $('<textarea/>')
+                    .addClass('cam6-dialogTextArea')
+                    .text(
+                        'cell =\n' +
+                        '    Math.floor(Math.random() * 256);\n'
+                    )
+                    .appendTo(this.$initializeDialog);
+
+            this.$initializeDialog.dialog({
+                resizable: true,
+                draggable: true,
+                width: 600,
+                height: 600,
+                dialogClass: 'cam6-dialog',
+                title: 'Initialize Cells',
+                buttons: [
+                    {
+                        text: 'Initialize',
+                        click: $.proxy(function() {
+
+                            var params = {
+                            };
+
+                            var code = 
+                                this.$initializeDialogTextArea.val() + '\n';
+                            var compiledFunction =
+                                this.compileTemplate(
+                                    this.initializeCellsTemplate,
+                                    {
+                                        code_replace: code
+                                    });
+
+                            if (compiledFunction) {
+                                try {
+                                    compiledFunction.call(this, code);
+                                } catch (e) {
+                                    alert('Error evaluating code:\n' + e + '\n' + code);
+                                }
+                            } else {
+                                alert('Error compiling code:\n' + code);
+                            }
+
+                        }, this)
+                    },
+                    {
+                        text: 'Close',
+                        click: $.proxy(function() {
+                            this.$initializeDialog.dialog('close');
+                        }, this)
+                    }
+                ]
+            });
+
+        }
+
+        this.$initializeDialog.dialog('open');
+
+    };
+
+
+    CAM6.prototype.initializeCellsTemplate = function initializeCellsTemplate(code) {
+        var cells = this.getNextCells();
+        var cellWidth = this.cellWidth;
+        var cellHeight = this.cellHeight;
+        var cellGutter = this.cellGutter;
+        var cellBufferWidth = this.cellBufferWidth;
+        var cellIndex = (cellGutter * cellBufferWidth) + cellGutter;
+
+        for (var cellY = 0;
+             cellY < cellHeight;
+             cellY++) {
+
+            for (var cellX = 0;
+                 cellX < cellWidth;
+                 cellX++) {
+
+                var cell = cells[cellIndex];
+
+                try {
+// <slot name="code">
+                    eval(code);
+// </slot>
+                } catch (e) {
+                    alert('Error evaluating code:\n' + e + '\n' + code);
+                    return;
+                }
+
+                cells[cellIndex] = cell;
+                cellIndex++;
+
+            }
+
+            cellIndex += 2;
+
+        }
+
+        this.wrapCells();
+
+        if (this.paused) {
+            this.tick();
+        }
     };
 
 
@@ -11632,63 +12172,67 @@
     };
 
 
-    // applyTools applies the drawing tools.
-    CAM6.prototype.applyTools = function applyTools() {
+    // trackHistogram tracks the mouse in the histogram.
+    CAM6.prototype.trackHistogram = function trackHistogram() {
 
-        // Perform low level mouse tracking.
+        if (!this.trackingHistogram) {
+            return;
+        }
 
-        if (this.trackingHistogram) {
+        // If they pressed down in the histogram, then dragging
+        // around the histogram sets the toolCell to the
+        // corresponding cell of the histogram column under the
+        // cursor, and dragging up into the actual cells sets the
+        // tool cell to the cell under the cursor.
 
-            // If they pressed down in the histogram, then dragging
-            // around the histogram sets the toolCell to the
-            // corresponding cell of the histogram column under the
-            // cursor, and dragging up into the actual cells sets the
-            // tool cell to the cell under the cursor.
+        var toolCell = this.toolCell;
 
-            var toolCell = this.toolCell;
+        var x = this.mouseX;
+        var y = this.mouseY;
 
-            var x = this.mouseX;
-            var y = this.mouseY;
+        if ((y >= 0) &&
+            (y < this.cellHeight) &&
+            (x >= 0) &&
+            (x < this.cellWidth)) {
 
-            if ((y >= 0) &&
-                (y < this.cellHeight) &&
-                (x >= 0) &&
-                (x < this.cellWidth)) {
+            // If the cursor is in the cells, then set the drawing
+            // tool cell from the cell under the cursor.
 
-                // If the cursor is in the cells, then set the drawing
-                // tool cell from the cell under the cursor.
+            var cells =
+                this.getCells();
 
-                var cells =
-                    this.getCells();
+            var cellIndex =
+                (x + 1) +
+                ((y + 1) * this.cellBufferWidth);
 
-                var cellIndex =
-                    (x + 1) +
-                    ((y + 1) * this.cellBufferWidth);
+            toolCell = cells[cellIndex];
 
-                toolCell = cells[cellIndex];
+            //LOG('applyAnalysis', ['x', x, 'y', y, 'cellIndex', cellIndex, 'cellBufferWidth', this.cellBufferWidth, 'toolCell', toolCell]);
 
-                //LOG('applyAnalysis', ['x', x, 'y', y, 'cellIndex', cellIndex, 'cellBufferWidth', this.cellBufferWidth, 'toolCell', toolCell]);
+        } else {
 
-            } else {
+            // Set the drawing tool cell from the histogram cell
+            // at the cursor x location.
 
-                // Set the drawing tool cell from the histogram cell
-                // at the cursor x location.
+            var cell = this.mouseX;
 
-                var cell = this.mouseX;
-
-                if ((cell >= 0) &&
-                    (cell < 256)) {
-                    toolCell = cell;
-                }
-
-            }
-
-            // If the tool cell changed, then update the parameter.
-            if (toolCell != this.toolCell) {
-                this.setValue(this, 'toolCell', toolCell);
+            if ((cell >= 0) &&
+                (cell < 256)) {
+                toolCell = cell;
             }
 
         }
+
+        // If the tool cell changed, then update the parameter.
+        if (toolCell != this.toolCell) {
+            this.setValue(this, 'toolCell', toolCell);
+        }
+
+    };
+
+
+    // applyTools applies the drawing tools.
+    CAM6.prototype.applyTools = function applyTools() {
 
         // Run all of the active editing tools.
 
@@ -11742,6 +12286,7 @@
     // playTool plays a tool dictionary and parameters.
     CAM6.prototype.playTool = function playTool(activeToolDict) {
 
+        //var cells = this.paused ? this.getCells() : this.getNextCells();
         var cells = this.getNextCells();
         var toolSymbol = activeToolDict.toolSymbol;
         var toolDict = this.tool_by_symbol[toolSymbol];
@@ -11820,7 +12365,7 @@
             toolDict,
             activeToolDict,
             left, top, right, bottom,
-            pixels, 
+            pixels,
             cells, cellGutter, cellBufferWidth);
 
     };
@@ -12063,7 +12608,7 @@
                 var tagRest = string.split('>');
 
                 if (tagRest.length < 2) {
-                    ERROR('Failed to find end of tag:', ["String", string, "tagRest", tagRest]);
+                    ERROR('Failed to find end of tag:', ['String', string, 'tagRest', tagRest]);
                 } else {
 
                     var tag = tagRest.shift();
@@ -12126,14 +12671,14 @@
 
         var neighborhoodFunctionText =
             resultStrings.join('');
-        //LOG("neighborhoodFunctionText", neighborhoodFunctionText);
+        //LOG('neighborhoodFunctionText', '\n\n' + neighborhoodFunctionText + '\n');
 
         // Must put parens around the function to get eval to return
         // it, otherwise it's a statement that doesn't return a value,
         // apparently!
         var compiledNeighborhoodFunction =
             eval('(' + neighborhoodFunctionText + ')');
-        //LOG("compiledNeighborhoodFunction", compiledNeighborhoodFunction);
+        //LOG('compiledNeighborhoodFunction', compiledNeighborhoodFunction);
 
         if (!compiledNeighborhoodFunction) {
             ERROR('Error evaluating neighborhoodFunctionText:', neighborhoodFunctionText);
@@ -12147,6 +12692,100 @@
         ruleDict.neighborhoodFunctionFunctions = resultFunctions;
 
         return compiledNeighborhoodFunction;
+    };
+
+
+    CAM6.prototype.compileTemplate = function compileTemplate(template, params) {
+
+        template = '' + template;
+
+        var strings =
+            template.split(/\/\/[ ]*</);
+
+        var output = [
+            '<doc><![CDATA[',
+            strings[0]
+        ];
+
+        for (var i = 1, n = strings.length;
+             i < n;
+             i++) {
+
+            var string = strings[i];
+
+            var tagRest = string.split('>');
+
+            if (tagRest.length < 2) {
+                ERROR('Failed to find end of tag:', ['String', string, 'tagRest', tagRest]);
+                return null;
+            }
+
+            var tag = tagRest.shift();
+            var rest = tagRest.join('>');
+
+            tag = tag.replace(/^[\t ]*\/\/([\t ]*)/, '$1');
+
+            output.push(']]><');
+            output.push(tag);
+            output.push('><![CDATA[');
+            if (rest.length) {
+                output.push(rest);
+            }
+
+        }
+
+        output.push(']]></doc>');
+
+        var xml = output.join('');
+
+        //LOG('Parsing XML text:', xml);
+        var doc = $.parseXML(xml);
+        //LOG('Got XML document:', doc);
+
+        var templateElement = doc && doc.firstChild;
+
+        if (!templateElement) {
+            ERROR('Error parsing xml for function template:', xml);
+            return null;
+        }
+
+        var resultStrings = [];
+        var resultFunctions = [];
+        var resultSlots = [];
+        var resultVariables = [];
+        var contexts = [
+            this,
+            params
+        ];
+
+        var evalInContexts =
+            evalInContextsFunction(contexts);
+
+        this.expandTemplate(
+            templateElement,
+            evalInContexts,
+            resultStrings,
+            resultFunctions,
+            resultSlots,
+            resultVariables);
+
+        var functionText =
+            resultStrings.join('');
+        LOG('functionText', '\n\n' + functionText + '\n');
+
+        // Must put parens around the function to get eval to return
+        // it, otherwise it's a statement that doesn't return a value,
+        // apparently!
+        var compiledFunction =
+            eval('(' + functionText + ')');
+        //LOG('compiledFunction', compiledFunction);
+
+        if (!compiledFunction) {
+            ERROR('Error evaluating functionText:', functionText);
+            return null;
+        }
+
+        return compiledFunction;
     };
 
 
@@ -12172,7 +12811,7 @@
             case 1: // element
 
                 var nodeName = el.nodeName;
-           
+
                 switch (nodeName) {
 
                     case 'doc':
@@ -12208,15 +12847,15 @@
                         var condition = true;
                         var test = el.getAttribute('test') || null;
 
-                        LOG("SLOT", slotName, test, el);
+                        LOG('SLOT', slotName, test, el);
                         if (test) {
                             try {
                                 condition = evalInContexts.call(this, test);
-                                LOG("SUCCESS", "condition", condition);
+                                LOG('SUCCESS', 'condition', condition);
                                 error = null;
                             } catch (e) {
                                 error = e;
-                                ERR('Error evaluating JavaScript expression:', ["error", error, "expression", test]);
+                                ERR('Error evaluating JavaScript expression:', ['error', error, 'expression', test]);
                             }
                         }
 
@@ -12234,9 +12873,9 @@
                                 name:    slotName,
                                 test:    test,
                                 before:  getInContexts(slotName + '_before' ) || null,
-                                after:   getInContexts(slotName + '_filter' ) || null,
-                                filter:  getInContexts(slotName + '_replace') || null,
-                                replace: getInContexts(slotName + '_after'  ) || null
+                                after:   getInContexts(slotName + '_after'  ) || null,
+                                filter:  getInContexts(slotName + '_filter' ) || null,
+                                replace: getInContexts(slotName + '_replace') || null
                             };
 
                             if (slotDict.before) {
@@ -12254,7 +12893,7 @@
                                 var subResultStrings = [];
 
                                 expandNodes.call(this, el.firstChild, subResultStrings);
-                               
+
                                 var subResultString =
                                         subResultStrings.join('');
 
@@ -12262,7 +12901,7 @@
                                     slotDict.filter.call(
                                         this,
                                         subResultString,
-                                        context,
+                                        contexts,
                                         resultStrings,
                                         resultFunctions,
                                         resultVariables);
@@ -12296,7 +12935,7 @@
                                 error = null;
                             } catch (e) {
                                 error = e;
-                                ERR('Error evaluating JavaScript expression:', ["error", error, "expression", test]);
+                                ERR('Error evaluating JavaScript expression:', ['error', error, 'expression', test]);
                             }
                         }
 
@@ -12320,7 +12959,7 @@
                                 error = null;
                             } catch (e) {
                                 error = e;
-                                ERR('Error evaluating JavaScript expression:', ["error", error, "expression", forDict.init]);
+                                ERR('Error evaluating JavaScript expression:', ['error', error, 'expression', forDict.init]);
                             }
                         }
 
@@ -12336,7 +12975,7 @@
                                     error = null;
                                 } catch (e) {
                                     error = e;
-                                    ERR('Error evaluating JavaScript expression:', ["error", error, "expression", forDict.test]);
+                                    ERR('Error evaluating JavaScript expression:', ['error', error, 'expression', forDict.test]);
                                 }
                             }
 
@@ -12350,7 +12989,7 @@
                                     error = null;
                                 } catch (e) {
                                     error = e;
-                                    ERR('Error evaluating JavaScript expression:', ["error", error, "expression", forDict.repeat]);
+                                    ERR('Error evaluating JavaScript expression:', ['error', error, 'expression', forDict.repeat]);
                                 }
                             }
 
@@ -12383,7 +13022,7 @@
                                 error = null;
                             } catch (e) {
                                 error = e;
-                                ERR('Error evaluating JavaScript expression:', ["error", error, "expression", expression]);
+                                ERR('Error evaluating JavaScript expression:', ['error', error, 'expression', expression]);
                             }
 
                             if (result) {
@@ -12476,6 +13115,10 @@
 
     // applyRule applies the rule to the cells.
     CAM6.prototype.applyRule = function applyRule() {
+
+        if (this.paused) {
+            return;
+        }
 
         var userParams = {};
         var ruleDict = this.rule_by_symbol[this.ruleSymbol];
