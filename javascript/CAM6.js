@@ -44,7 +44,7 @@
 // and Forth, based on the original CAM6 hardware and compatible with
 // the brilliant Forth software developed by Toffoli and Margolus. But
 // then it took on a life of its own (not to mention a lot of other CA
-// rules), and evolved into supporting many other cellular autoomata
+// rules), and evolved into supporting many other cellular automata
 // rules and image processing effects. Eventually it was translated to
 // C++ and Python, and then more recently it has finally been
 // rewritten from the ground up in JavaScript.
@@ -84,7 +84,7 @@
 // research in distributed dynamics including applications involving
 // parallel computation and image processing.
 //
-// Contents: Intdoduction, Cellular Automata, The CAM Environment, A
+// Contents: Introduction, Cellular Automata, The CAM Environment, A
 // Live Demo, The Rules of the Game, Our First Rules, Second Order
 // Dynamics, Neighbors and Neighborhoods, Randomness and Probabilistic
 // Rules, A Sampler of Techniques, Identity and Motion,
@@ -200,7 +200,7 @@
 //         to create a colorful trail), or "Heat" (which runs a heat
 //         diffusion simulation in the upper bits of the cell, and allows
 //         the cell value to bleed into the lower bits of the heat
-//         diffusion simulation, so "heat pollition" can spread from the
+//         diffusion simulation, so "heat pollution" can spread from the
 //         cells, and the cellular automata and heat diffusion may
 //         interact with each other).
 //
@@ -818,7 +818,7 @@
     //     that will be used as the base of various keys defined
     //     in the scope and the type_metaData dictionary.
     //
-    //     scope: A dictioary that is where the type will be
+    //     scope: A dictionary that is where the type will be
     //     defined, which is usually the prototype of a class.
     //
     //     indexGetFunction: a function indexGetFunction(type_metaData,
@@ -3692,6 +3692,158 @@
             },
 
             ////////////////////////////////////////////////////////////////////////
+            // Moore 4 neighborhood.
+
+            {
+
+                symbol: 'Moore4',
+
+                name: 'Moore 4',
+
+                description: 'Moore 4 neighborhood.',
+
+                neighbors: [
+                    'nw0', 'nw1', 'n0', 'n1' , 'ne0', 'ne1',
+                    'w0' , 'w1' , 'c0', 'c1' , 'e0' , 'e1' ,
+                    'sw0', 'sw1', 's0', 's1' , 'se0', 'se1',
+                    'u0' , 'u1' , 'd0', 'd1' , 'p0' , 'p1'
+                ],
+
+                neighborhoodFunction: function neighborhoodFunction_Moore(neighborhoodDict, ruleDict) {
+
+                    this.compileRule(
+                        ruleDict);
+
+                    var cells = this.getCells();
+                    var nextCells = this.getNextCells();
+                    var cellWidth = this.cellWidth;
+                    var cellHeight = this.cellHeight;
+                    var cellGutter = this.cellGutter;
+                    var cellBufferWidth = this.cellBufferWidth;
+                    var ruleTableBytes = ruleDict.ruleTableBytes;
+                    var heatShiftPollution = this.heatShiftPollution;
+                    var step = this.step;
+                    var phaseTime = this.phaseTime;
+                    var mask = ruleDict.mask;
+                    var highMask = mask ^ 0xff;
+                    var echoShift = ruleDict.echoShift;
+                    var heatShift = ruleDict.heatShift;
+                    var heatErrorShift = ruleDict.heatErrorShift;
+                    var frob = this.frob;
+                    var nw, n, ne;
+                    var w,  c,  e;
+                    var sw, s, se;
+                    var u, d;
+                    var error = 0;
+                    var cellIndex;
+                    var nextCol;
+                    var nextRow;
+                    var nextRowSkip;
+                    var width;
+                    var height;
+                    var getTableIndex;
+
+                    if (this.doHistogram) {
+                        for (var cell = 0; cell < 256; cell++) {
+                            this.histogram[cell] = 0;
+                        }
+                    }
+
+                    width = cellWidth; height = cellHeight;
+                    cellIndex = (cellGutter * cellBufferWidth) + cellGutter;
+                    nextCol = 1; nextRow = cellBufferWidth;
+                    nextRowSkip = cellGutter * 2;
+
+                    for (var cellY = 0;
+                         cellY < height;
+                         cellY++) {
+
+                        // Load the right two columns of the 3x3 window.
+                        n  = cells[cellIndex - nextCol - nextRow];  ne = cells[cellIndex - nextRow];
+                        c  = cells[cellIndex - nextCol          ];  e  = cells[cellIndex          ];
+                        s  = cells[cellIndex - nextCol + nextRow];  se = cells[cellIndex + nextRow];
+
+                        for (var cellX = 0;
+                             cellX < width;
+                             cellX++) {
+
+                            // Scroll the 3x3 window to the right, scrolling the middle and right
+                            // columns to the left, then scooping up three new cells from the right
+                            // leading edge.
+                            nw = n;  n = ne;  ne = cells[cellIndex + nextCol - nextRow];
+                            w  = c;  c =  e;  e  = cells[cellIndex + nextCol          ];
+                            sw = s;  s = se;  se = cells[cellIndex + nextCol + nextRow];
+
+                            cell = 0x00;
+
+                            for (var plane = 0; plane < 8; plane += 2) {
+
+                                //       0       1       2       3       4       5
+                                //     nw0     nw1      n0      n1     ne0     ne1
+                                // 0x00001  0x0002 0x00004 0x00008 0x00010 0x00020
+
+                                //       6       7       8       9      10      11
+                                //      w0      w1      c0      c1      e0      e1
+                                // 0x00040 0x00080 0x00100 0x00200 0x00400 0x00800
+
+                                //      12      13      14      15      16      17
+                                //     sw0     sw1      s0      s1     se0     se1
+                                // 0x00100 0x00200 0x00400 0x00800 0x01000 0x02000
+
+                                //      18      19      20      21      22      23
+                                //      u0      u1      d0      d1      p0      p1   
+                                // 0x04000 0x08000 0x10000 0x20000 0x40000 0x80000
+
+                                var tableIndex =
+
+                                    ( ( ( nw    >> ( ( plane     )        ) ) & 0x03 ) <<  0 ) |   // nw
+                                    ( ( ( n     >> ( ( plane     )        ) ) & 0x03 ) <<  2 ) |   // n
+                                    ( ( ( ne    >> ( ( plane     )        ) ) & 0x03 ) <<  4 ) |   // ne
+
+                                    ( ( ( w     >> ( ( plane     )        ) ) & 0x03 ) <<  6 ) |   // w
+                                    ( ( ( c     >> ( ( plane     )        ) ) & 0x03 ) <<  8 ) |   // c
+                                    ( ( ( e     >> ( ( plane     )        ) ) & 0x03 ) << 10 ) |   // e
+
+                                    ( ( ( sw    >> ( ( plane     )        ) ) & 0x03 ) << 12 ) |   // sw
+                                    ( ( ( s     >> ( ( plane     )        ) ) & 0x03 ) << 14 ) |   // s
+                                    ( ( ( se    >> ( ( plane     )        ) ) & 0x03 ) << 16 ) |   // se
+
+                            ((plane == 6)
+                                  ? ( ( ( c     >> ( ( 0         )        ) ) & 0x03 ) << 20 )
+                                  : ( ( ( c     >> ( ( plane + 2 ) & 0x03 ) ) & 0x03 ) << 20 )) |   // u
+
+                            ((plane == 0)
+                                  ? ( ( ( c     >> ( ( 6         )        ) ) & 0x03 ) << 18 )
+                                  : ( ( ( c     >> ( ( plane - 2 ) & 0x03 ) ) & 0x03 ) << 18 )) |   // d
+
+                                    ( ( ( plane >> ( ( 1         )        ) ) & 0x03 ) << 22 );     // plane
+
+                                var bits = 
+                                    ruleTableBytes[tableIndex] & 0x03;
+
+                                cell |= 
+                                    bits << plane;
+                            }
+
+                            nextCells[cellIndex] =
+                                cell;
+
+                            if (this.doHistogram) {
+                                this.histogram[cell]++;
+                            }
+
+                            cellIndex += nextCol;
+                        }
+
+                        // Skip the gutter.
+                        cellIndex += nextRowSkip;
+                    }
+
+                }
+
+            },
+
+            ////////////////////////////////////////////////////////////////////////
             // VonNeumann neighborhood.
 
             {
@@ -3873,6 +4025,240 @@
 
                                 error -= (error & ~3);
 
+                            }
+
+                            nextCells[cellIndex] =
+                                cell;
+
+                            if (this.doHistogram) {
+                                this.histogram[cell]++;
+                            }
+
+                            cellIndex += nextCol;
+                        }
+
+                        // Skip the gutter.
+                        cellIndex += nextRowSkip;
+                    }
+
+                }
+
+            },
+
+            ////////////////////////////////////////////////////////////////////////
+            // VonNeumann4 neighborhood.
+
+            {
+
+                symbol: 'VonNeumann4',
+
+                name: 'VonNeumann4',
+
+                description: 'VonNeumann4 neighborhood.',
+
+                neighbors: ['c0', 'c1', 'e0', 'e1', 'w0', 'w1', 's0', 's1', 'n0', 'n1', 'horiz', 'vert', 'phaseTime', 'shift0', 'shift1'],
+
+                neighborhoodFunction: function neighborhoodFunction_VonNeumann(neighborhoodDict, ruleDict) {
+
+                    this.compileRule(
+                        ruleDict);
+
+                    var cells = this.getCells();
+                    var nextCells = this.getNextCells();
+                    var cellWidth = this.cellWidth;
+                    var cellHeight = this.cellHeight;
+                    var cellGutter = this.cellGutter;
+                    var cellBufferWidth = this.cellBufferWidth;
+                    var ruleTableBytes = ruleDict.ruleTableBytes;
+                    var heatShiftPollution = this.heatShiftPollution;
+                    var step = this.step;
+                    var phaseTime = this.phaseTime;
+                    var mask = ruleDict.mask;
+                    var highMask = mask ^ 0xff;
+                    var echoShift = ruleDict.echoShift;
+                    var heatShift = ruleDict.heatShift;
+                    var heatErrorShift = ruleDict.heatErrorShift;
+                    var frob = this.frob;
+                    var     n    ;
+                    var w,  c,  e;
+                    var     s    ;
+                    var error = 0;
+                    var cell = 0;
+                    var cellIndex;
+                    var nextCol;
+                    var nextRow;
+                    var nextRowSkip;
+                    var width;
+                    var height;
+                    var getTableIndex;
+
+                    if (this.doHistogram) {
+                        for (var cell = 0; cell < 256; cell++) {
+                            this.histogram[cell] = 0;
+                        }
+                    }
+
+                    width = cellWidth; height = cellHeight;
+                    cellIndex = (cellGutter * cellBufferWidth) + cellGutter;
+                    nextCol = 1; nextRow = cellBufferWidth;
+                    nextRowSkip = cellGutter * 2;
+
+                    for (var cellY = 0;
+                         cellY < height;
+                         cellY++) {
+
+                        // Load the right two columns.
+                        c  = cells[cellIndex - nextCol];  e  = cells[cellIndex];
+
+                        for (var cellX = 0;
+                             cellX < width;
+                             cellX++) {
+
+                            // Scroll the window to the right.
+
+                                     n = cells[cellIndex - nextRow];
+                            w  = c;  c =  e;  e = cells[cellIndex + nextCol];
+                                     s = cells[cellIndex + nextRow];
+
+                            cell = 0x00;
+
+                            for (var plane = 0; plane < 8; plane += 2) {
+
+                                // 0     1     2     3     4     5     6     7     8     9     10    11    12        13     14
+                                // c0    c1    e0    e1    w0    w1    s0    s1    n0    n1    horiz vert  phaseTime plane0 plane1
+                                // 0x001 0x002 0x004 0x008 0x010 0x020 0x040 0x080 0x100 0x200 0x400 0x800 0x1000    0x2000 0x4000
+
+                                var tableIndex =
+                                    (((c         >> plane) & 0x03) <<  0) |
+                                    (((e         >> plane) & 0x03) <<  2) |
+                                    (((w         >> plane) & 0x03) <<  4) |
+                                    (((s         >> plane) & 0x03) <<  6) |
+                                    (((n         >> plane) & 0x03) <<  8) |
+                                    (((cellX             ) & 0x01) << 10) |
+                                    (((cellY             ) & 0x01) << 11) |
+                                    (((phaseTime         ) & 0x01) << 12) |
+                                    (((plane     >> 1    ) & 0x03) << 13);
+
+                                var bits = 
+                                    ruleTableBytes[tableIndex];
+
+                                cell |= (bits & 0x03) << plane;
+                            }
+
+                            nextCells[cellIndex] =
+                                cell;
+
+                            if (this.doHistogram) {
+                                this.histogram[cell]++;
+                            }
+
+                            cellIndex += nextCol;
+                        }
+
+                        // Skip the gutter.
+                        cellIndex += nextRowSkip;
+                    }
+
+                }
+
+            },
+
+            ////////////////////////////////////////////////////////////////////////
+            // VonNeumann8 neighborhood.
+
+            {
+
+                symbol: 'VonNeumann8',
+
+                name: 'VonNeumann8',
+
+                description: 'VonNeumann8 neighborhood.',
+
+                neighbors: ['c0', 'e0', 'w0', 's0', 'n0', 'horiz', 'vert', 'phaseTime'],
+
+                neighborhoodFunction: function neighborhoodFunction_VonNeumann(neighborhoodDict, ruleDict) {
+
+                    this.compileRule(
+                        ruleDict);
+
+                    var cells = this.getCells();
+                    var nextCells = this.getNextCells();
+                    var cellWidth = this.cellWidth;
+                    var cellHeight = this.cellHeight;
+                    var cellGutter = this.cellGutter;
+                    var cellBufferWidth = this.cellBufferWidth;
+                    var ruleTableBytes = ruleDict.ruleTableBytes;
+                    var heatShiftPollution = this.heatShiftPollution;
+                    var step = this.step;
+                    var phaseTime = this.phaseTime;
+                    var mask = ruleDict.mask;
+                    var highMask = mask ^ 0xff;
+                    var echoShift = ruleDict.echoShift;
+                    var heatShift = ruleDict.heatShift;
+                    var heatErrorShift = ruleDict.heatErrorShift;
+                    var frob = this.frob;
+                    var     n    ;
+                    var w,  c,  e;
+                    var     s    ;
+                    var error = 0;
+                    var cell;
+                    var cellIndex;
+                    var nextCol;
+                    var nextRow;
+                    var nextRowSkip;
+                    var width;
+                    var height;
+                    var getTableIndex;
+
+                    if (this.doHistogram) {
+                        for (var cell = 0; cell < 256; cell++) {
+                            this.histogram[cell] = 0;
+                        }
+                    }
+
+                    width = cellWidth; height = cellHeight;
+                    cellIndex = (cellGutter * cellBufferWidth) + cellGutter;
+                    nextCol = 1; nextRow = cellBufferWidth;
+                    nextRowSkip = cellGutter * 2;
+
+                    for (var cellY = 0;
+                         cellY < height;
+                         cellY++) {
+
+                        // Load the right two columns.
+                        c  = cells[cellIndex - nextCol];  e  = cells[cellIndex];
+
+                        for (var cellX = 0;
+                             cellX < width;
+                             cellX++) {
+
+                            // Scroll the window to the right.
+
+                                     n = cells[cellIndex - nextRow];
+                            w  = c;  c =  e;  e = cells[cellIndex + nextCol];
+                                     s = cells[cellIndex + nextRow];
+
+                            cell = 0x00;
+
+                            for (var plane = 0; plane < 8; plane++) {
+
+                                // 0     1     2     3     4     5     6     7
+                                // c     e     w     s     n     horiz vert  phaseTime
+                                // 0x01  0x02  0x04  0x08  0x10  0x20  0x40  0x80
+
+                                var tableIndex =
+                                    (((c         >> plane) & 0x01) << 0) |
+                                    (((e         >> plane) & 0x01) << 1) |
+                                    (((w         >> plane) & 0x01) << 2) |
+                                    (((s         >> plane) & 0x01) << 3) |
+                                    (((n         >> plane) & 0x01) << 4) |
+                                    (((cellX             ) & 0x01) << 5) |
+                                    (((cellY             ) & 0x01) << 6) |
+                                    (((phaseTime         ) & 0x01) << 7);
+
+                                var bit = 
+                                    ruleTableBytes[tableIndex];
+                                cell |= (bit & 0x01) << plane;
                             }
 
                             nextCells[cellIndex] =
@@ -5023,6 +5409,52 @@
     }
 
 
+    // ruleFunction_VonNeumann4_hglass_all computes the four 
+    // hglass rule VonNeumann neighborhood lookup tables.
+    function ruleFunction_VonNeumann4_hglass_all(ruleDict, state) {
+
+        // The orientation parameter from the ruleDict is a key into
+        // the dictionary of arrays of neighborhood names, used to
+        // make the different rotations of the hglass rule. The bit
+        // values of those neighbors are concatinated into an index
+        // into the glassTable array, so we can rotate the rule around
+        // in four different directions by permuting the neighbors.
+
+        var orientation = state.shift0 + (state.shift1 << 1);
+
+        var hglassNeighbors = [
+            ['c0', 's0', 'n0', 'e0', 'w0'],
+            ['c0', 'n0', 's0', 'w0', 'e0'],
+            ['c0', 'e0', 'w0', 'n0', 's0'],
+            ['c0', 'w0', 'e0', 's0', 'n0']
+        ][orientation];
+
+        var glassTable = [
+            0, 1, 1, 1, 0, 0, 0, 0,
+            0, 0, 0, 1, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 1, 0, 0,
+            0, 1, 0, 0, 0, 1, 1, 1
+        ];
+
+        var glassIndex = 0;
+        for (var shift = 0, n = hglassNeighbors.length;
+             shift < n;
+             shift++) {
+
+            var neighbor =
+                hglassNeighbors[shift];
+
+            glassIndex |=
+                state[neighbor] << shift;
+        }
+
+        var cell =
+            glassTable[glassIndex];
+
+        return cell;
+    }
+
+
     // ruleFunction_Moore_life computes the life rule Moore
     // neighborhood lookup table.
     function ruleFunction_Moore_life(ruleDict, state) {
@@ -5062,6 +5494,138 @@
             if (sum8 == 2) {
                 cell |= 1;
             }
+
+        }
+
+        return cell;
+    }
+
+
+    // ruleFunction_Moore_brain computes the brain rule Moore
+    // neighborhood lookup table.
+    function ruleFunction_Moore4_quad(ruleDict, state) {
+
+        var plane =
+            (state.p1 << 1) |
+            (state.p0     );
+
+        var cell = 0;
+
+        switch (plane) {
+
+            case 0:
+
+                // Life
+
+                var sum8 =
+                        ruleUtil_Moore_sum8_0(state);
+
+                if (sum8 &&
+                    //(state.u0 | state.u1)
+                    (state.u0 && state.u1)
+                ) {
+                    sum8--;
+                }
+
+                if (state.c0) {
+
+                    cell = (((sum8 == 2) ||
+                             (sum8 == 3))
+                        ? 1 : 0);
+
+                } else {
+
+                    cell = ((sum8 == 3)
+                        ? 1 : 0);
+
+                }
+
+                cell |= state.c0 >> 1;
+
+                break;
+
+            case 1:
+
+                // Torben / Anneal
+
+                var torben =
+                    [1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0][
+                        state.nw1 + state.n1  + state.ne1 +   // nw n  ne
+                        state.w1  + state.c1  + state.e1  +   // w  c  e 
+                        state.sw1 + state.s1  + state.se1 +   // sw s  se
+                        //(state.u0 | state.u1) +               // up: anything in 2 planes above
+                        (state.u0 + state.u1) +               // up: anything in 2 planes above
+                        state.c0                              // down: anneal in plane below
+                    ] << 1;
+
+                var anneal =
+                    [1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0][
+                        state.nw0 + state.n0  + state.ne0 +   // nw n  ne
+                        state.w0  + state.c0  + state.e0  +   // w  c  e
+                        state.sw0 + state.s0  + state.se0 +   // sw s  se
+                        state.c1  +                           // up: torben in plane above
+                        //(state.d0 | state.d1)                 // down: anything in 2 planes below
+                        (state.d0 + state.d1)                 // down: anything in 2 planes below
+                    ];
+                
+                cell = (anneal | torben) ^ 0x03;
+
+                break;
+
+            case 2:
+
+                // Life
+
+                var sum8 =
+                        ruleUtil_Moore_sum8_0(state);
+
+                if (sum8 &&
+                    (state.d0 | state.d1)) {
+                    sum8--;
+                }
+
+                if (state.c0) {
+
+                    cell = (((sum8 == 2) ||
+                             (sum8 == 3))
+                        ? 1 : 0);
+
+                } else {
+
+                    cell = ((sum8 == 3)
+                        ? 1 : 0);
+
+                }
+
+                cell |= state.c0 >> 1;
+
+                break;
+
+            case 3:
+
+                // Brain
+
+                cell =
+                    state.c0 << 1;
+
+                if ((state.c0 == 0) &&
+                    (state.c1 == 0)) {
+
+                    var sum8 =
+/*
+                        (state.u0 || state.u1) +
+                        (state.d0 || state.d1)) +
+*/
+                        (state.u0 && state.d0) +
+                        ruleUtil_Moore_sum8_0(state);
+
+                    if (sum8 == 2) {
+                        cell |= 1;
+                    }
+
+                }
+
+                break;
 
         }
 
@@ -5792,6 +6356,16 @@
             },
 
             {
+                symbol: 'Moore4_Quad',
+                name: 'Moore4 Quad',
+                description: 'Four two-bit Moore lookup table rules running in parallel.',
+                neighborhood: 'Moore4',
+                ruleFunction: ruleFunction_Moore4_quad,
+                paramsUsed: {}
+            },
+
+
+            {
                 symbol: 'Moore_Worms_Bohemian_Echo',
                 name: 'Moore Bohemian Worms Echo',
                 description: 'The classic Bohemian Worms with Echo, implemented with the Moore neighborhood lookup table.',
@@ -5808,7 +6382,7 @@
             {
                 symbol: 'Margolus_HVGas',
                 name: 'Margolus HV Gas',
-                description: 'The classic Margolus HV Gas, implemented with the Margoli neighborhood lookup table.',
+                description: 'The classic Margolus HV Gas, implemented with the Margolus neighborhood lookup table.',
                 neighborhood: 'Margolus',
                 ruleFunction: ruleFunction_Margolus_hvgas,
                 paramsUsed: {},
@@ -5963,7 +6537,7 @@
             {
                 symbol: 'VonNeumann_HGlass_Down',
                 name: 'von Neumann HGlass Down',
-                description: 'The classic HGlass Down, implemented with the Von Neumann neighborhood lookup table.',
+                description: 'The classic HGlass Down, implemented with the von Neumann neighborhood lookup table.',
                 neighborhood: 'VonNeumann',
                 ruleFunction: ruleFunction_VonNeumann_hglass,
                 orientation: 'down',
@@ -6121,7 +6695,7 @@
             {
                 symbol: 'VonNeumann_HGlass_Right_Echo',
                 name: 'von Neumann HGlass Right Echo',
-                description: 'The classic HGlass Right Echo, implemented with the Von Neumann neighborhood lookup table.',
+                description: 'The classic HGlass Right Echo, implemented with the von Neumann neighborhood lookup table.',
                 neighborhood: 'VonNeumann',
                 ruleFunction: ruleFunction_VonNeumann_hglass,
                 orientation: 'right',
@@ -6163,6 +6737,34 @@
                 echoShift: 0,
                 heatShift: 0,
                 heatErrorShift: 0
+            },
+
+            {
+                symbol: 'VonNeumann8_SpinsOnly',
+                name: 'von Neumann 8 Spins Only',
+                description: 'Eight classic Spins Only planes running in parallel, implemented with the von Neumann 8 neighborhood lookup table.',
+                neighborhood: 'VonNeumann8',
+                ruleFunction: ruleFunction_VonNeumann_spinsOnly,
+                paramsUsed: {}
+            },
+
+            {
+                symbol: 'VonNeumann4_HGlass_Down',
+                name: 'von Neumann 4 HGlass Down',
+                description: 'Four classic HGlass Down planes running in parallel, implemented with the von Neumann 4 neighborhood lookup table.',
+                neighborhood: 'VonNeumann4',
+                ruleFunction: ruleFunction_VonNeumann_hglass,
+                orientation: 'down',
+                paramsUsed: {},
+            },
+
+            {
+                symbol: 'VonNeumann4_HGlass_All',
+                name: 'von Neumann 4 HGlass All',
+                description: 'Four classic HGlass All planes running in parallel and different directions, implemented with the von Neumann 4 neighborhood lookup table.',
+                neighborhood: 'VonNeumann4',
+                ruleFunction: ruleFunction_VonNeumann4_hglass_all,
+                paramsUsed: {},
             },
 
             {
