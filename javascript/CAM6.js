@@ -1237,7 +1237,7 @@
     window.CAM6 = function CAM6(params) {
 
         // This just initializes instance variables to their default
-        // values and resets parms.
+        // values and resets params.
         this.init();
 
         // Now we set params to what was passed in (or an empty dict).
@@ -2515,7 +2515,7 @@
     //
     // Each neighborhoodDict describes a cellular automata neighborhood,
     // including its symbol, and a neighborhood function that takes the
-    // neighborhoodDixt and a ruleDixt as a parmeter, and applies the
+    // neighborhoodDict and a ruleDict as a parameter, and applies the
     // rule to the cells.
 
 
