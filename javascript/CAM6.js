@@ -5804,8 +5804,8 @@
     }
 
 
-    // ruleFunction_Margolus_spinsOnly computes the Spins Only rule
-    // Margolus neighborhood lookup table.
+    // ruleFunction_VonNeumann_spinsOnly computes the Spins Only rule
+    // for VonNeumann neighborhood lookup table.
     //
     // Cellular Automata Machines, p. 190, section 17.3, Spins Only.
     //
@@ -5829,7 +5829,7 @@
     //
     function ruleFunction_VonNeumann_spinsOnly(ruleDict, state) {
 
-        // This makes an checkerboard pattern that alternates every
+        // This makes a checkerboard pattern that alternates every
         // step, so we can apply the rule to every other cell every
         // other step. That way we know our four neighbors will not be
         // changing at the same time we are changing.
@@ -5847,7 +5847,7 @@
         // neighbors are up, and two are down. Since energy is stored
         // in two adjacent cells with different spins, we can flip our
         // value without changing the energy of the system, because
-        // the perimiter between up and down cells remains the same.
+        // the perimeter between up and down cells remains the same.
         var result =
             (activeSite
                 ? [
