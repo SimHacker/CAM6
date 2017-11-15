@@ -27,7 +27,13 @@
     position: absolute;
     left: 0;
     top: 0;
+    right: 0;
+    bottom: 0;
     width: 100%;
+    height: 100%;
+    margin: 0;
+    border: 0;
+    padding: 0;
 }
 
 .cam6-header :link,
@@ -41,14 +47,14 @@
 }
 
 .cam6-content {
-    text-align: center;
+    text-align: left;
     position: relative;
 }
 
 .cam6-tabsFrame {
     position: absolute;
-    left: 0px;
-    top: 50px;
+    right: 0px;
+    top: 0px;
     z-index: 3000;
     margin: 5px;
     border: 1px solid white;
@@ -75,7 +81,7 @@
     height: 24px;
     background-color: #404040;
     display: block;
-    float: left;
+    float: right;
 }
 
 .cam6-tab {
@@ -112,27 +118,41 @@
     display: none;
     position: absolute;
     margin: 5px;
-    top: 80px;
-    left: 0px;
+    top: 30px;
+    right: 0px;
     z-index: 3000;
-    font-size: 1em;
+    font-size: 0.8em;
     font-weight: normal;
     padding: 10px;
     text-align: left;
     opacity: 0.8;
+    overflow: hidden;
 }
 
 .cam6-tabPanel-active {
     display: block;
 }
 
-.cam6-cellCanvasFrame {
-    position: absolute;
-    left: 0px;
+.cam6-tabPanel-help {
+    height: 600px;
+    overflow: scroll;
+}
+
+.cam6-mapFrame {
+    display: block;
+    position: relative;
     top: 0px;
+    left: 0px;
+}
+
+.cam6-cellCanvasFrame {
+    display: inline-block;
+    border: 10px solid #808080;
+    margin: 0;
 }
 
 .cam6-cellCanvasContainer {
+    display: block;
 }
 
 .cam6-webCamVideo {
@@ -160,11 +180,28 @@
     transform: scale(-1,1);
 }
 
-.cam6-cellcanvas {
+.cam6-glcanvas {
     position: absolute;
     left: 0px;
     top: 0px;
-    z-index: 2001;
+}
+
+.cam6-cellCanvas {
+    z-index: 2020;
+}
+
+.cam6-histogramCanvasFrame {
+    display: inline-block;
+    border: 10px solid #808080;
+    margin: 0;
+}
+
+.cam6-histogramCanvasContainer {
+    display: block;
+}
+
+.cam6-histogramCanvas {
+    z-index: 2030;
 }
 
 .cam6-compositionOverlay {
@@ -172,7 +209,7 @@
     position: absolute;
     left: 0px;
     top: 0px;
-    z-index: 2002;
+    z-index: 2040;
     display: none;
 }
 
@@ -181,7 +218,7 @@
     position: absolute;
     left: 0px;
     top: 0px;
-    z-index: 2003;
+    z-index: 2050;
 }
 
 .cam6-headTrackerOverlay {
@@ -189,7 +226,7 @@
     position: absolute;
     left: 0px;
     top: 0px;
-    z-index: 2005;
+    z-index: 2060;
     display: block;
 }
 
@@ -224,7 +261,7 @@
 
 .cam6-paramValue {
     display: inline-block;
-    width: 120px;
+    width: 180px;
     text-align: left;
     margin-left: 20px;
 }
@@ -389,6 +426,15 @@
     display: block;
     width: 560px;
     height: 240px;
+}
+
+.cam6-pieTarget {
+    width: 0;
+    height: 0;
+}
+
+.Pie {
+    font-size: 12pt;
 }
 
 ////////////////////////////////////////////////////////////////////////

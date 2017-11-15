@@ -222,10 +222,6 @@
 //         Commands triggered by pressing buttons, and recorded and
 //         played back in scripts.
 //
-//     pie:
-//
-//         Pie menus for the user interface.
-//
 //     hint:
 //
 //         Usage hints shown to help users.
@@ -505,10 +501,10 @@
 
 
     // stringToFloat converts a string to a float.
-    function stringToInt(value) {
+    function stringToFloat(value) {
         var float = parseFloat(value);
         if (isNaN(float)) {
-            int = 0;
+            float = 0;
         }
         return float;
     }
@@ -804,6 +800,31 @@
                         }
                     }
                 }
+            }
+        }
+    }
+
+
+    function groupPieItemsIntoSlices(slices, items)
+    {
+        var groupToSlice = {};
+        for (var i = 0, n = slices.length;
+             i < n;
+             i++) {
+            var slice = slices[i];
+            if (slice.group) {
+                groupToSlice[slice.group] = slice;
+            }
+        }
+
+        for (var i = 0, n = items.length;
+             i < n;
+             i++) {
+            var item = items[i];
+            var group = item.group || 'default';
+            var slice = groupToSlice[group] || groupToSlice['default'];
+            if (slice) {
+                slice.items.push(item);
             }
         }
     }
@@ -4701,7 +4722,7 @@
                           (((down  == C10) || (down  == C11)) && (dir != dirDown )));
                     }
 
-                    // Return excited confluent state.
+                    // Return if we should excite a confluent state.
                     function cascadeExcitedConfluent() {
                         return (((right  == OLX) ||
                                  (up     == ODX) ||
@@ -4833,67 +4854,68 @@
                                         } // if
                                         break;
 
-                                    case S: // Sensitized construction state, creating another state.
+                                    case S: // Sensitized construction state, creating another
+                                            // state from huffman encoded construction instructions.
                                         if (pointedToByExcitedOrdinaryOrSpecial()) {
-                                            nextState = S1; // Branch to next sensitized state.
+                                            nextState = S1; // Branch to next sensitized state S => S1. Continue...
                                         } else {
-                                            nextState = S0; // Branch to next sensitized state.
+                                            nextState = S0; // Branch to next sensitized state S => S0. Continue...
                                         } // if
                                         break;
 
                                     case S0: // Sensitized construction state, creating another state.
                                         if (pointedToByExcitedOrdinaryOrSpecial()) {
-                                            nextState = S01; // Branch to next sensitized state.
+                                            nextState = S01; // Branch to next sensitized state S0 => S01. Continue...
                                         } else {
-                                            nextState = S00; // Branch to next sensitized state.
+                                            nextState = S00; // Branch to next sensitized state S0 => S00. Continue...
                                         } // if
                                         break;
 
                                     case S1: // Sensitized construction state, creating another state.
                                         if (pointedToByExcitedOrdinaryOrSpecial()) {
-                                            nextState = S11; // Branch to next sensitized state.
+                                            nextState = S11; // Branch to next sensitized state S1 => S11. Continue...
                                         } else {
-                                            nextState = S10; // Branch to next sensitized state.
+                                            nextState = S10; // Branch to next sensitized state S1 => S10. Continue...
                                         } // if
                                         break;
 
                                     case S00: // Sensitized construction state, creating another state.
                                         if (pointedToByExcitedOrdinaryOrSpecial()) {
-                                            nextState = OL; // Create an ordinary left state.
+                                            nextState = OL; // Create an ordinary left state S00 => OL. Done!
                                         } else {
-                                            nextState = S000; // Branch to next sensitized state.
+                                            nextState = S000; // Branch to next sensitized state S00 => S000. Continue...
                                         } // if
                                         break;
 
                                     case S01: // Sensitized construction state, creating another state.
                                         if (pointedToByExcitedOrdinaryOrSpecial()) {
-                                          nextState = SR; // Create a special right state.
+                                          nextState = SR; // Create a special right state S01 => SR. Done!
                                         } else {
-                                          nextState = OD; // Create an ordinary down state.
+                                          nextState = OD; // Create an ordinary down state S01 => OD. Done!
                                         } // if
                                         break;
 
                                     case S10: // Sensitized construction state, creating another state.
                                         if (pointedToByExcitedOrdinaryOrSpecial()) {
-                                            nextState = SL; // Create a special left state.
+                                            nextState = SL; // Create a special left state S10 => SL. Done!
                                         } else {
-                                            nextState = SU; // Create a special up state.
+                                            nextState = SU; // Create a special up state S10 => SU. Done!
                                         } // if
                                         break;
 
                                     case S11: // Sensitized construction state, creating another state.
                                         if (pointedToByExcitedOrdinaryOrSpecial()) {
-                                          nextState = C00; // Create a confluent state.
+                                          nextState = C00; // Create a confluent state S11 => C00. Done!
                                         } else {
-                                          nextState = SD; // Create a special down state.
+                                          nextState = SD; // Create a special down state S11 => SD. Done!
                                         } // if
                                         break;
 
                                     case S000: // Sensitized construction state, creating another state.
                                         if (pointedToByExcitedOrdinaryOrSpecial()) {
-                                          nextState = OU; //c create an ordinary up state.
+                                          nextState = OU; // Create an ordinary up state S000 => OU. Done!
                                         } else {
-                                          nextState = OR; // Create an ordinary right state.
+                                          nextState = OR; // Create an ordinary right state S000 => OR. Done!
                                         } // if
                                         break;
 
@@ -5036,11 +5058,15 @@
                     nextRowSkip = cellGutter * 2;
 
                     function sum8mask(mask) {
-                        return (((nw&mask) + (n&mask) + (ne&mask) + (w&mask) + (e&mask) + (sw&mask) + (s&mask) + (se&mask)));
+                        return (((nw & mask) + (n  & mask) + (ne & mask) + 
+                                 (w  & mask) +               (e  & mask) + 
+                                 (sw & mask) + (s  & mask) + (se & mask)));
                     }
 
                     function sum9mask(mask) {
-                        return (((nw&mask) + (n&mask) + (ne&mask) + (w&mask) + (c&mask) + (e&mask) + (sw&mask) + (s&mask) + (se&mask)));
+                        return (((nw & mask) + (n  & mask) + (ne & mask) +
+                                 (w  & mask) + (c  & mask) + (e  & mask) +
+                                 (sw & mask) + (s  & mask) + (se & mask)));
                     }
 
                     for (var cellY = 0;
@@ -5878,7 +5904,9 @@
                 symbol: 'WavyMarble',
                 name: 'Wavy Marble',
                 description: 'Simulated wavy marble.',
+                pie: 'default',
                 neighborhood: 'Marble',
+                toolCells: [0, 32, 64, 128, 192, 255],
                 paramsUsed: {
                     frobTarget: true,
                     frob: true,
@@ -5915,7 +5943,9 @@
                 symbol: 'FireyMarble',
                 name: 'Firey Marble',
                 description: 'Simulated firey marble.',
+                pie: 'default',
                 neighborhood: 'Marble',
+                toolCells: [0, 32, 64, 128, 192, 255],
                 paramsUsed: {
                     frobTarget: true,
                     frob: true,
@@ -5952,7 +5982,9 @@
                 symbol: 'FreakyMarble',
                 name: 'Freaky Marble',
                 description: 'Simulated freaky marble.',
+                pie: 'default',
                 neighborhood: 'Marble',
+                toolCells: [0, 32, 64, 128, 192, 255],
                 paramsUsed: {
                     frobTarget: true,
                     frob: true,
@@ -5989,7 +6021,9 @@
                 symbol: 'TwistyMarble',
                 name: 'Twisty Marble',
                 description: 'Simulated twisty marble.',
+                pie: 'default',
                 neighborhood: 'Marble',
+                toolCells: [0, 32, 64, 128, 192, 255],
                 paramsUsed: {
                     frobTarget: true,
                     frob: true,
@@ -6026,7 +6060,9 @@
                 symbol: 'TwistierMarble',
                 name: 'Twistier Marble',
                 description: 'Simulated twistier marble.',
+                pie: 'default',
                 neighborhood: 'Marble',
+                toolCells: [0, 32, 64, 128, 192, 255],
                 paramsUsed: {
                     frobTarget: true,
                     frob: true,
@@ -6063,7 +6099,9 @@
                 symbol: 'FuzzyMarble',
                 name: 'Fuzzy Marble',
                 description: 'Simulated fuzzy marble.',
+                pie: 'default',
                 neighborhood: 'Marble',
+                toolCells: [0, 32, 64, 128, 192, 255],
                 paramsUsed: {
                     frobTarget: true,
                     frob: true,
@@ -6100,7 +6138,9 @@
                 symbol: 'FunkyFlower',
                 name: 'Funky Flower',
                 description: 'Funky flower.',
+                pie: 'default',
                 neighborhood: 'Flower',
+                toolCells: [0, 32, 64, 128, 192, 255],
                 paramsUsed: {
                     frobTarget: true,
                     frob: true,
@@ -6137,7 +6177,9 @@
                 symbol: 'Life',
                 name: 'Life',
                 description: 'The classic Life.',
+                pie: 'default',
                 neighborhood: 'Life',
+                toolCells: [0, 1],
                 paramsUsed: {},
                 mask: 0x01,
                 echoShift: 0,
@@ -6149,7 +6191,9 @@
                 symbol: 'Life_Echo',
                 name: 'Life Echo',
                 description: 'The classic Life, with echo.',
+                pie: 'default',
                 neighborhood: 'Life',
+                toolCells: [0, 1],
                 paramsUsed: {},
                 mask: 0x01,
                 echoShift: 1,
@@ -6161,8 +6205,10 @@
                 symbol: 'Life_Heat',
                 name: 'Life Heat',
                 description: 'The classic Life, with heat.',
+                pie: 'default',
                 neighborhood: 'Life',
                 mask: 0x01,
+                toolCells: [0, 1],
                 paramsUsed: {
                     frobTarget: true,
                     frob: true,
@@ -6180,7 +6226,9 @@
                 symbol: 'Brain',
                 name: 'Brain',
                 description: 'The classic Brain.',
+                pie: 'default',
                 neighborhood: 'Brain',
+                toolCells: [0, 1, 2, 3],
                 paramsUsed: {},
                 mask: 0x03,
                 echoShift: 0,
@@ -6192,7 +6240,9 @@
                 symbol: 'Brain_Echo',
                 name: 'Brain Echo',
                 description: 'The classic Brain, with echo.',
+                pie: 'default',
                 neighborhood: 'Brain',
+                toolCells: [0, 1, 2, 3],
                 paramsUsed: {},
                 mask: 0x03,
                 echoShift: 2,
@@ -6204,7 +6254,9 @@
                 symbol: 'Brain_Heat',
                 name: 'Brain Heat',
                 description: 'The classic Brain, with heat.',
+                pie: 'default',
                 neighborhood: 'Brain',
+                toolCells: [0, 1, 2, 3],
                 paramsUsed: {
                     frobTarget: true,
                     frob: true,
@@ -6222,7 +6274,9 @@
                 symbol: 'Eco',
                 name: 'Eco',
                 description: 'The classic Eco.',
+                pie: 'default',
                 neighborhood: 'Eco',
+                toolCells: [0, 1, 2, 3, 4, 5, 6, 7],
                 paramsUsed: {},
                 mask: 0x07,
                 echoShift: 0,
@@ -6233,7 +6287,9 @@
                 symbol: 'Eco_Echo',
                 name: 'Eco Echo',
                 description: 'The classic Eco, with echo.',
+                pie: 'default',
                 neighborhood: 'Eco',
+                toolCells: [0, 1, 2, 3, 4, 5, 6, 7],
                 paramsUsed: {},
                 mask: 0x07,
                 echoShift: 3,
@@ -6245,7 +6301,9 @@
                 symbol: 'Eco_Heat',
                 name: 'Eco Heat',
                 description: 'The classic Eco, with heat.',
+                pie: 'default',
                 neighborhood: 'Eco',
+                toolCells: [0, 1, 2, 3, 4, 5, 6, 7],
                 paramsUsed: {
                     frobTarget: true,
                     frob: true,
@@ -6263,8 +6321,10 @@
                 symbol: 'Moore_Life',
                 name: 'Moore Life',
                 description: 'The classic Life, implemented with the Moore neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'Moore',
                 ruleFunction: ruleFunction_Moore_life,
+                toolCells: [0, 1],
                 paramsUsed: {},
                 mask: 0x01,
                 echoShift: 0,
@@ -6276,8 +6336,10 @@
                 symbol: 'Moore_Brain',
                 name: 'Moore Brain',
                 description: 'The classic Brain, implemented with the Moore neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'Moore',
                 ruleFunction: ruleFunction_Moore_brain,
+                toolCells: [0, 1, 2, 3],
                 paramsUsed: {},
                 mask: 0x03,
                 echoShift: 0,
@@ -6289,9 +6351,11 @@
                 symbol: 'Moore_Worms_Yuppie',
                 name: 'Moore Yuppie Worms',
                 description: 'The classic Yuppie Worms, implemented with the Moore neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'Moore',
                 ruleFunction: ruleFunction_Moore_worms,
                 personality: 'yuppie',
+                toolCells: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
                 paramsUsed: {},
                 mask: 0x0f,
                 echoShift: 0,
@@ -6303,9 +6367,11 @@
                 symbol: 'Moore_Worms_Yuppie_Echo',
                 name: 'Moore Yuppie Worms Echo',
                 description: 'The classic Yuppie Worms with Echo, implemented with the Moore neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'Moore',
                 ruleFunction: ruleFunction_Moore_worms,
                 personality: 'yuppie',
+                toolCells: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
                 paramsUsed: {},
                 mask: 0x0f,
                 echoShift: 4,
@@ -6317,9 +6383,11 @@
                 symbol: 'Moore_Worms_Hipster',
                 name: 'Moore Hipster Worms',
                 description: 'The classic Hipster Worms, implemented with the Moore neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'Moore',
                 ruleFunction: ruleFunction_Moore_worms,
                 personality: 'hipster',
+                toolCells: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
                 paramsUsed: {},
                 mask: 0x0f,
                 echoShift: 0,
@@ -6331,9 +6399,11 @@
                 symbol: 'Moore_Worms_Hipster_Echo',
                 name: 'Moore Hipster Worms Echo',
                 description: 'The classic Hipster Worms with Echo, implemented with the Moore neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'Moore',
                 ruleFunction: ruleFunction_Moore_worms,
                 personality: 'hipster',
+                toolCells: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
                 paramsUsed: {},
                 mask: 0x0f,
                 echoShift: 4,
@@ -6345,9 +6415,11 @@
                 symbol: 'Moore_Worms_Bohemian',
                 name: 'Moore Bohemian Worms',
                 description: 'The classic Bohemian Worms, implemented with the Moore neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'Moore',
                 ruleFunction: ruleFunction_Moore_worms,
                 personality: 'bohemian',
+                toolCells: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
                 paramsUsed: {},
                 mask: 0x0f,
                 echoShift: 0,
@@ -6359,8 +6431,10 @@
                 symbol: 'Moore4_Quad',
                 name: 'Moore4 Quad',
                 description: 'Four two-bit Moore lookup table rules running in parallel.',
+                pie: 'default',
                 neighborhood: 'Moore4',
                 ruleFunction: ruleFunction_Moore4_quad,
+                toolCells: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
                 paramsUsed: {}
             },
 
@@ -6369,9 +6443,11 @@
                 symbol: 'Moore_Worms_Bohemian_Echo',
                 name: 'Moore Bohemian Worms Echo',
                 description: 'The classic Bohemian Worms with Echo, implemented with the Moore neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'Moore',
                 ruleFunction: ruleFunction_Moore_worms,
                 personality: 'bohemian',
+                toolCells: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
                 paramsUsed: {},
                 mask: 0x0f,
                 echoShift: 4,
@@ -6383,8 +6459,10 @@
                 symbol: 'Margolus_HVGas',
                 name: 'Margolus HV Gas',
                 description: 'The classic Margolus HV Gas, implemented with the Margolus neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'Margolus',
                 ruleFunction: ruleFunction_Margolus_hvgas,
+                toolCells: [0, 1, 2, 3],
                 paramsUsed: {},
                 mask: 0x03,
                 echoShift: 0,
@@ -6396,8 +6474,10 @@
                 symbol: 'Margolus_HVGas_Echo',
                 name: 'Margolus HV Gas Echo',
                 description: 'The classic Margolus HV Gas Echo, implemented with the Margoli neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'Margolus',
                 ruleFunction: ruleFunction_Margolus_hvgas,
+                toolCells: [0, 1, 2, 3],
                 paramsUsed: {},
                 mask: 0x03,
                 echoShift: 2,
@@ -6409,8 +6489,10 @@
                 symbol: 'Margolus_HVGas_Heat',
                 name: 'Margolus HV Gas Heat',
                 description: 'The classic Margolus HV Gas Heat, implemented with the Margoli neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'Margolus',
                 ruleFunction: ruleFunction_Margolus_hvgas,
+                toolCells: [0, 1, 2, 3],
                 paramsUsed: {
                     frobTarget: true,
                     frob: true,
@@ -6428,8 +6510,10 @@
                 symbol: 'Margolus_Wavers',
                 name: 'Margolus Wavers',
                 description: 'The classic Margolus Wavers, implemented with the Margoli neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'Margolus',
                 ruleFunction: ruleFunction_Margolus_wavers,
+                toolCells: [0, 1],
                 paramsUsed: {},
                 mask: 0x01,
                 echoShift: 0,
@@ -6441,8 +6525,10 @@
                 symbol: 'Margolus_Wavers_Echo',
                 name: 'Margolus Wavers Echo',
                 description: 'The classic Margolus Wavers with Echo, implemented with the Margoli neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'Margolus',
                 ruleFunction: ruleFunction_Margolus_wavers,
+                toolCells: [0, 1],
                 paramsUsed: {},
                 mask: 0x01,
                 echoShift: 1,
@@ -6454,8 +6540,10 @@
                 symbol: 'Margolus_Critters',
                 name: 'Margolus Critters',
                 description: 'The classic Margolus Critters, implemented with the Margoli neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'Margolus',
                 ruleFunction: ruleFunction_Margolus_critters,
+                toolCells: [0, 1],
                 paramsUsed: {},
                 mask: 0x01,
                 echoShift: 0,
@@ -6467,8 +6555,10 @@
                 symbol: 'Margolus_Critters_Echo',
                 name: 'Margolus Critters Echo',
                 description: 'The classic Margolus Critters with Echo, implemented with the Margoli neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'Margolus',
                 ruleFunction: ruleFunction_Margolus_critters,
+                toolCells: [0, 1],
                 paramsUsed: {},
                 mask: 0x01,
                 echoShift: 1,
@@ -6480,8 +6570,10 @@
                 symbol: 'Margolus_Tron',
                 name: 'Margolus Tron',
                 description: 'The classic Margolus Tron, implemented with the Margoli neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'Margolus',
                 ruleFunction: ruleFunction_Margolus_tron,
+                toolCells: [0, 1],
                 paramsUsed: {},
                 mask: 0x01,
                 echoShift: 0,
@@ -6493,8 +6585,10 @@
                 symbol: 'Margolus_Tron_Echo',
                 name: 'Margolus Tron Echo',
                 description: 'The classic Margolus Tron with Echo, implemented with the Margoli neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'Margolus',
                 ruleFunction: ruleFunction_Margolus_tron,
+                toolCells: [0, 1],
                 paramsUsed: {},
                 mask: 0x01,
                 echoShift: 1,
@@ -6506,8 +6600,10 @@
                 symbol: 'Margolus_Dendrite',
                 name: 'Margolus Denrdite',
                 description: 'The classic Margolus Dendrite, implemented with the Margoli neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'Margolus',
                 ruleFunction: ruleFunction_Margolus_dendrite,
+                toolCells: [0, 1, 2, 3],
                 paramsUsed: {},
                 mask: 0x03,
                 echoShift: 0,
@@ -6519,8 +6615,10 @@
                 symbol: 'Margolus_Dendrite_Heat',
                 name: 'Margolus Denrdite Heat',
                 description: 'The classic Margolus Dendrite Heat, implemented with the Margoli neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'Margolus',
                 ruleFunction: ruleFunction_Margolus_dendrite,
+                toolCells: [0, 1, 2, 3],
                 paramsUsed: {
                     frobTarget: true,
                     frob: true,
@@ -6538,9 +6636,11 @@
                 symbol: 'VonNeumann_HGlass_Down',
                 name: 'von Neumann HGlass Down',
                 description: 'The classic HGlass Down, implemented with the von Neumann neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'VonNeumann',
                 ruleFunction: ruleFunction_VonNeumann_hglass,
                 orientation: 'down',
+                toolCells: [0, 1],
                 paramsUsed: {},
                 mask: 0x01,
                 echoShift: 0,
@@ -6552,9 +6652,11 @@
                 symbol: 'VonNeumann_HGlass_Down_Echo',
                 name: 'von Neumann HGlass Down Echo',
                 description: 'The classic HGlass Down Echo, implemented with the von Neumann neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'VonNeumann',
                 ruleFunction: ruleFunction_VonNeumann_hglass,
                 orientation: 'down',
+                toolCells: [0, 1],
                 paramsUsed: {},
                 mask: 0x01,
                 echoShift: 1,
@@ -6566,9 +6668,11 @@
                 symbol: 'VonNeumann_HGlass_Down_Heat',
                 name: 'von Neumann HGlass Down Heat',
                 description: 'The classic HGlass Down Heat, implemented with the von Neumann neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'VonNeumann',
                 ruleFunction: ruleFunction_VonNeumann_hglass,
                 orientation: 'down',
+                toolCells: [0, 1],
                 paramsUsed: {
                     frobTarget: true,
                     frob: true,
@@ -6586,9 +6690,11 @@
                 symbol: 'VonNeumann_HGlass_Up',
                 name: 'von Neumann HGlass Up',
                 description: 'The classic HGlass Up, implemented with the von Neumann neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'VonNeumann',
                 ruleFunction: ruleFunction_VonNeumann_hglass,
                 orientation: 'up',
+                toolCells: [0, 1],
                 paramsUsed: {},
                 mask: 0x01,
                 echoShift: 0,
@@ -6600,9 +6706,11 @@
                 symbol: 'VonNeumann_HGlass_Up_Echo',
                 name: 'von Neumann HGlass Up Echo',
                 description: 'The classic HGlass Up Echo, implemented with the von Neumann neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'VonNeumann',
                 ruleFunction: ruleFunction_VonNeumann_hglass,
                 orientation: 'up',
+                toolCells: [0, 1],
                 paramsUsed: {},
                 mask: 0x01,
                 echoShift: 1,
@@ -6614,9 +6722,11 @@
                 symbol: 'VonNeumann_HGlass_Up_Heat',
                 name: 'von Neumann HGlass Up Heat',
                 description: 'The classic HGlass Up Heat, implemented with the von Neumann neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'VonNeumann',
                 ruleFunction: ruleFunction_VonNeumann_hglass,
                 orientation: 'up',
+                toolCells: [0, 1],
                 paramsUsed: {
                     frobTarget: true,
                     frob: true,
@@ -6634,9 +6744,11 @@
                 symbol: 'VonNeumann_HGlass_Left',
                 name: 'von Neumann HGlass Left',
                 description: 'The classic HGlass Left, implemented with the von Neumann neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'VonNeumann',
                 ruleFunction: ruleFunction_VonNeumann_hglass,
                 orientation: 'left',
+                toolCells: [0, 1],
                 paramsUsed: {},
                 mask: 0x01,
                 echoShift: 0,
@@ -6648,9 +6760,11 @@
                 symbol: 'VonNeumann_HGlass_Left_Echo',
                 name: 'von Neumann HGlass Left Echo',
                 description: 'The classic HGlass Left Echo, implemented with the von Neumann neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'VonNeumann',
                 ruleFunction: ruleFunction_VonNeumann_hglass,
                 orientation: 'left',
+                toolCells: [0, 1],
                 paramsUsed: {},
                 mask: 0x01,
                 echoShift: 1,
@@ -6662,9 +6776,11 @@
                 symbol: 'VonNeumann_HGlass_Left_Heat',
                 name: 'von Neumann HGlass Left Heat',
                 description: 'The classic HGlass Left Heat, implemented with the von Neumann neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'VonNeumann',
                 ruleFunction: ruleFunction_VonNeumann_hglass,
                 orientation: 'left',
+                toolCells: [0, 1],
                 paramsUsed: {
                     frobTarget: true,
                     frob: true,
@@ -6682,9 +6798,11 @@
                 symbol: 'VonNeumann_HGlass_Right',
                 name: 'von Neumann HGlass Right',
                 description: 'The classic HGlass Right, implemented with the von Neumann neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'VonNeumann',
                 ruleFunction: ruleFunction_VonNeumann_hglass,
                 orientation: 'right',
+                toolCells: [0, 1],
                 paramsUsed: {},
                 mask: 0x01,
                 echoShift: 0,
@@ -6696,9 +6814,11 @@
                 symbol: 'VonNeumann_HGlass_Right_Echo',
                 name: 'von Neumann HGlass Right Echo',
                 description: 'The classic HGlass Right Echo, implemented with the von Neumann neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'VonNeumann',
                 ruleFunction: ruleFunction_VonNeumann_hglass,
                 orientation: 'right',
+                toolCells: [0, 1],
                 paramsUsed: {},
                 mask: 0x01,
                 echoShift: 1,
@@ -6710,9 +6830,11 @@
                 symbol: 'VonNeumann_HGlass_Right_Heat',
                 name: 'von Neumann HGlass Right Heat',
                 description: 'The classic HGlass Right Heat, implemented with the von Neumann neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'VonNeumann',
                 ruleFunction: ruleFunction_VonNeumann_hglass,
                 orientation: 'right',
+                toolCells: [0, 1],
                 paramsUsed: {
                     frobTarget: true,
                     frob: true,
@@ -6730,8 +6852,10 @@
                 symbol: 'VonNeumann_SpinsOnly',
                 name: 'von Neumann Spins Only',
                 description: 'The classic Spins Only, implemented with the von Neumann neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'VonNeumann',
                 ruleFunction: ruleFunction_VonNeumann_spinsOnly,
+                toolCells: [0, 1],
                 paramsUsed: {},
                 mask: 0x01,
                 echoShift: 0,
@@ -6743,8 +6867,10 @@
                 symbol: 'VonNeumann8_SpinsOnly',
                 name: 'von Neumann 8 Spins Only',
                 description: 'Eight classic Spins Only planes running in parallel, implemented with the von Neumann 8 neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'VonNeumann8',
                 ruleFunction: ruleFunction_VonNeumann_spinsOnly,
+                toolCells: [0, 1, 2, 4, 8, 16, 32, 64, 128],
                 paramsUsed: {}
             },
 
@@ -6752,9 +6878,11 @@
                 symbol: 'VonNeumann4_HGlass_Down',
                 name: 'von Neumann 4 HGlass Down',
                 description: 'Four classic HGlass Down planes running in parallel, implemented with the von Neumann 4 neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'VonNeumann4',
                 ruleFunction: ruleFunction_VonNeumann_hglass,
                 orientation: 'down',
+                toolCells: [0, 1, 2, 4, 8, 16, 32, 64, 128],
                 paramsUsed: {},
             },
 
@@ -6762,8 +6890,10 @@
                 symbol: 'VonNeumann4_HGlass_All',
                 name: 'von Neumann 4 HGlass All',
                 description: 'Four classic HGlass All planes running in parallel and different directions, implemented with the von Neumann 4 neighborhood lookup table.',
+                pie: 'default',
                 neighborhood: 'VonNeumann4',
                 ruleFunction: ruleFunction_VonNeumann4_hglass_all,
+                toolCells: [0, 1, 2, 4, 8, 16, 32, 64, 128],
                 paramsUsed: {},
             },
 
@@ -6771,7 +6901,39 @@
                 symbol: 'JohnVonNeumann29',
                 name: 'John von Neumann 29 State',
                 description: 'The classic John von Neumann 29 State rule.',
+                pie: 'default',
                 neighborhood: 'JohnVonNeumann29',
+                toolCells: [
+                    [ 'U', 0x00 ],
+                    [ 'S', 0x01 ],
+                    [ 'S0', 0x02 ],
+                    [ 'S1', 0x03 ],
+                    [ 'S00', 0x04 ],
+                    [ 'S01', 0x05 ],
+                    [ 'S10', 0x06 ],
+                    [ 'S11', 0x07 ],
+                    [ 'S000', 0x08 ],
+                    [ 'C00', 0x10 ],
+                    [ 'C10', 0x11 ],
+                    [ 'C01', 0x90 ],
+                    [ 'C11', 0x91 ],
+                    [ 'OR', 0x20 ],
+                    [ 'OU', 0x21 ],
+                    [ 'OL', 0x22 ],
+                    [ 'OD', 0x23 ],
+                    [ 'SR', 0x40 ],
+                    [ 'SU', 0x41 ],
+                    [ 'SL', 0x42 ],
+                    [ 'SD', 0x43 ],
+                    [ 'ORX', 0xa0 ],
+                    [ 'OUX', 0xa1 ],
+                    [ 'OLX', 0xa2 ],
+                    [ 'ODX', 0xa3 ],
+                    [ 'SRX', 0xc0 ],
+                    [ 'SUX', 0xc1 ],
+                    [ 'SLX', 0xc2 ],
+                    [ 'SDX', 0xc3 ]
+                ],
                 paramsUsed: {}
             },
 
@@ -6779,7 +6941,26 @@
                 symbol: 'RISCA',
                 name: 'Ridiculous Instruction Set Cellular Automata',
                 description: 'Ridiculous Instruction Set Cellular Automata.',
+                pie: 'default',
                 neighborhood: 'RISCA',
+                toolCells: [
+                    [ 'c', 0 ],
+                    [ 'life', 16 ],
+                    [ 'brain', 32 ],
+                    [ 'torbin', 48 ],
+                    [ 'anneal', 64 ],
+                    [ 'ditto', 80 ],
+                    [ 'logic', 96 ],
+                    [ 'n', 112 ],
+                    [ 'nw', 128 ],
+                    [ 'w', 144 ],
+                    [ 'sw', 160 ],
+                    [ 's', 176 ],
+                    [ 'se', 192 ],
+                    [ 'e', 208 ],
+                    [ 'ne', 224 ],
+                    [ 'heat', 240 ]
+                ],
                 paramsUsed: {
                     frobTarget: true,
                     frob: true,
@@ -7526,6 +7707,7 @@
 
             },
 
+/* BROKEN!
             {
                 symbol: 'disruptor',
                 name: 'Disruptor Beam',
@@ -7662,6 +7844,7 @@ dy = 0;
                 }
 
             },
+*/
 
             {
                 symbol: 'line',
@@ -7702,7 +7885,7 @@ dy = 0;
 
                     var ctxDraw = this.compositionOverlayContext;
 
-                    ctxDraw.setStrokeColor(255, 255, 255, 255);
+                    ctxDraw.strokeStyle = '#ffffff';
                     ctxDraw.lineWidth = toolSize;
                     ctxDraw.lineCap = toolLineCap;
 
@@ -7719,7 +7902,7 @@ dy = 0;
                     var blue  = colorMap[colorMapIndex + 2] / 255;
                     var alpha = colorMap[colorMapIndex + 3] / 255;
 
-                    ctxFeedback.setStrokeColor(red, green, blue, 255);
+                    ctxFeedback.strokeStyle = 'rgb(' + red + ',' + green + ',' + blue + ',255)';
                     ctxFeedback.lineWidth = toolSize;
                     ctxFeedback.lineCap = toolLineCap;
 
@@ -7995,8 +8178,12 @@ dy = 0;
                     return !this.fullScreen;
                 },
                 commandFunction: function commandFunction(commandDict, params) {
-                    this.fullScreenMode();
-                    this.updateCommands();
+                    setTimeout(
+                        $.proxy(function() {
+                                this.fullScreenMode();
+                                this.updateCommands();
+                            }, this),
+                        1);
                 }
             },
 
@@ -8016,8 +8203,12 @@ dy = 0;
                     return this.fullScreen;
                 },
                 commandFunction: function commandFunction(commandDict, params) {
-                    this.windowMode();
-                    this.updateCommands();
+                    setTimeout(
+                        $.proxy(function() {
+                                this.windowMode();
+                                this.updateCommands();
+                            }, this),
+                        1);
                 }
             },
 
@@ -8226,7 +8417,7 @@ dy = 0;
                     return 'Save';
                 },
                 getDescriptionFunction: function getDescriptionFunction(commandDict) {
-                    return 'Save a recoded script.';
+                    return 'Save a recorded script.';
                 },
                 isVisibleFunction: function isVisibleFunction(commandDict) {
                     return true;
@@ -8264,12 +8455,16 @@ dy = 0;
                 commandFunction: function commandFunction(commandDict, params) {
                     this.enableWebCam();
                     this.updateCommands();
+                },
+                layout: {
+                    sliceDirection: 'East'
                 }
             },
 
             {
                 symbol: 'stopWebCam',
                 recordable: false,
+                group: 'camera',
                 getNameFunction: function getNameFunction(commandDict) {
                     return 'Stop WebCam';
                 },
@@ -8295,6 +8490,7 @@ dy = 0;
             {
                 symbol: 'startHeadTracker',
                 recordable: false,
+                group: 'camera',
                 getNameFunction: function getNameFunction(commandDict) {
                     return 'Start Head Tracker';
                 },
@@ -8320,6 +8516,7 @@ dy = 0;
             {
                 symbol: 'stopHeadTracker',
                 recordable: false,
+                group: 'camera',
                 getNameFunction: function getNameFunction(commandDict) {
                     return 'Stop Head Tracker';
                 },
@@ -8345,6 +8542,7 @@ dy = 0;
             {
                 symbol: 'startAnalyzer',
                 recordable: false,
+                group: 'camera',
                 getNameFunction: function getNameFunction(commandDict) {
                     return 'Start Analyzer';
                 },
@@ -8370,6 +8568,7 @@ dy = 0;
             {
                 symbol: 'stopAnalyzer',
                 recordable: false,
+                group: 'camera',
                 getNameFunction: function getNameFunction(commandDict) {
                     return 'Stop Analyzer';
                 },
@@ -8390,39 +8589,6 @@ dy = 0;
                     this.disableAnalyzer();
                     this.updateCommands();
                 }
-            }
-
-        ]);
-
-
-    ////////////////////////////////////////////////////////////////////////
-    // The pie type.
-
-
-    defineType(
-        'pie',
-        CAM6.prototype,
-        null,
-        ['symbol'],
-        [
-
-            {
-                symbol: 'simulation',
-                cssBackground: {
-                },
-                slices: [
-                    {
-                        direction: 'North',
-                        items: [
-                            {
-                                label: 'Pause',
-                                onshowitem: function(event, pie, slice, item) {
-
-                                }
-                            }
-                        ]
-                    }
-                ],
             }
 
         ]);
@@ -8754,14 +8920,14 @@ dy = 0;
                 symbol: 'StupidFunClubLogo',
                 name: 'Stupid Fun Club Logo',
                 type: 'image',
-                url: 'file:images/StupidFunClub.png'
+                url: 'images/StupidFunClub.png'
             },
 
             {
-                symbol: 'SimCityBox',
-                name: 'SimCity Box',
+                symbol: 'micropolis-tiles',
+                name: 'Micropolis Tiles',
                 type: 'image',
-                url: 'file:images/SimCityBox.png'
+                url: 'images/micropolis_tiles.png'
             }
 
         ]);
@@ -9216,8 +9382,14 @@ dy = 0;
         this.$parent = null;
         this.$root = null;
         this.$content = null;
+        this.$glCanvas = null;
         this.$tabsFrame = null;
         this.$tabsContainer = null;
+        this.$mapFrame = null;
+        this.$histogramCanvasFrame = null;
+        this.$histogramCanvasContainer = null;
+        this.$histogramCanvas = null;
+        this.$mapFrameBr = null;
         this.$cellCanvasFrame = null;
         this.$cellCanvasContainer = null;
         this.$webCamVideo = null;
@@ -9234,17 +9406,21 @@ dy = 0;
         this.$initializeDialogTextArea = null;
 
         this.useGUI = true;
-        //this.cellWidth = 256;
-        //this.cellHeight = 256;
+        this.windowWidth = 1024;
+        this.windowHeight = 1024;
+        this.cellWidth = 256;
+        this.cellHeight = 256;
         //this.cellWidth = 320;
         //this.cellHeight = 240;
-        this.cellWidth = Math.floor(16 * 30);
-        this.cellHeight = Math.floor(9 * 30 * 0.82 * 0.5) * 2.0;
+        //this.cellWidth = Math.floor(16 * 30);
+        //this.cellHeight = Math.floor(9 * 30 * 0.82 * 0.5) * 2.0;
         this.cellGutter = 1;
-        this.cellScale = 2;
+        this.tileScale = 16;
+        this.cellCanvasScale = 2;
+        this.histogramCanvasScale = 2;
+        this.doCellCanvas = true;
         this.doHistogram = true;
         //this.doHistogram = false;
-        this.histogramGapHeight = 1;
         this.histogramToolCellHeight = 5;
         this.histogramHeaderHeight = 5;
         this.histogramGraphHeight = 30;
@@ -9288,16 +9464,22 @@ dy = 0;
         this.playSpeed = 1;
         this.playModeSymbol = 'forwardStop';
         this.recordModeSymbol = 'scriptParameterChangesCommandsTools';
-        this.randomSeed = '' + Math.random();
+        this.randomSeed = '' + Math.random(); // XXX: Why is this a string?!
         this.phaseTime = 0;
         this.step = 0;
         this.analyzerSymbol = 'headPainter';
 
         // Runtime variables.
         this.histogram = null;
-        this.cellCanvasPixelWidth = 0;
-        this.cellCanvasPixelHeight = 0;
         this.cellCanvasContext = null;
+        this.gl = null;
+        this.glPanX = 0;
+        this.glPanY = 0;
+        this.glScale = 16.0;
+        this.glTileSize = 16;
+        this.glTilesImage = null;
+        this.glTilesImageSymbol = 'micropolis-tiles';
+        this.glTilesTexture = null;
         this.compositionOverlayContext = null;
         this.feedbackOverlayContext = null;
         this.cellCanvasImageData = null;
@@ -9310,7 +9492,7 @@ dy = 0;
         this.colorCells = null;
         this.animationTimer = null;
         this.fullScreen = false;
-        this.paused = false;
+        this.paused = true;
         this.steps = 0;
         this.trackingCells = false;
         this.trackingCellsLayer = 10;
@@ -9379,14 +9561,73 @@ dy = 0;
     // startup starts the simulation by initializing everything, creating
     // the user interface, and starting the animation timer.
     CAM6.prototype.startup = function startup() {
-
         this.makeGUI();
         this.initFromParams();
+        this.startupLoadImages();
+    };
+
+
+    CAM6.prototype.startupLoadImages = function startupLoadImages() {
+
+        //LOG('startupLoadImages begin: imageObjects:', this.image_objects);
+
+        var promises = [];
+
+        for (var i = 0, n = this.image_objects.length;
+             i < n;
+             i++) {
+
+            var image = this.image_objects[i]
+
+            switch (image.type) {
+
+                case 'webcam':
+                    break;
+
+                case 'image':
+                    var deferred = $.Deferred();
+                    promises.push(deferred.promise());
+                    image.image = new Image();
+                    //LOG('Loading image:', image);
+                    (function (deferred) { // Capture deferred.
+                        image.image.onload = function() {
+                            //LOG('Loaded image url:', image.url, 'image:', image);
+                            deferred.resolve();
+                        };
+                    })(deferred);
+                    image.image.src = image.url;
+                    break;
+
+                default:
+                    LOG('Unknown resource type in resourceDict:', resourceDict);
+                    break;
+
+            }
+
+        }
+
+        var target = this;
+        $.when.apply(null, promises).done(function() {
+            //LOG('All resources loaded, so finishing startup.');
+            target.startupFinish();
+        });
+
+        //LOG('startupLoadImages: end: waiting...');
+
+    };
+
+
+    CAM6.prototype.startupFinish = function startupFinish() {
+    
         this.makeCells();
         this.makeHistogram();
         this.initCanvas();
+        this.initHistogram();
+        this.glInit();
         this.randomizeCells();
         this.updateParamVisibility();
+
+        this.paused = false;
         this.scheduleTick();
 
         if (this.analyzerEnabled) {
@@ -9410,13 +9651,15 @@ dy = 0;
         this.cellWidth = params.cellWidth || this.cellWidth;
         this.cellHeight = params.cellHeight || this.cellHeight;
         this.cellGutter = params.cellGutter || this.cellGutter;
-        this.cellScale = params.cellScale || this.cellScale;
+        this.cellCanvasScale = params.cellCanvasScale || this.cellCanvasScale;
+        this.doCellCanvas = params.doCellCanvas || this.doCellCanvas;
         this.doHistogram = params.doHistogram || this.doHistogram;
         this.histogramGapHeight = params.histogramGapHeight || this.histogramGapHeight;
         this.histogramToolCellHeight = params.histogramToolCellHeight || this.histogramToolCellHeight;
         this.histogramHeaderHeight = params.histogramHeaderHeight || this.histogramHeaderHeight;
         this.histogramGraphHeight = params.histogramGraphHeight || this.histogramGraphHeight;
         this.analyzerEnabled = (params.analyzerEnabled !== null) ? params.analyzerEnabled : this.analyzerEnabled;
+        this.resources = (params.resources !== null) ? params.resources : this.resources;
 
         // Params described by paramMetaData.
         this.setValue(this, 'toolSymbol', params.toolSymbol || this.toolSymbol);
@@ -9461,7 +9704,7 @@ dy = 0;
     // setValue sets the param named by key to the given paramValue,
     // by calling the metadata's setValueFunction if defined, or
     // otherwise just setting it manually. It also records the
-    // parameter change in the script, if we're recording, and notifes
+    // parameter change in the script if we're recording, and notifies
     // the user interface that the key value has changed.
     CAM6.prototype.setValue = function setValue(target, key, paramValue) {
 
@@ -10268,7 +10511,7 @@ dy = 0;
                             // Chrome 19 shim.
                             if (window.navigator.appVersion.match(/Chrome\/(.*?) /)) {
                                 var chromeVersion =
-                                        parseInt(window.navigator.appVersion.match(/Chrome\/(\d+)\./)[1], 10);
+                                    parseInt(window.navigator.appVersion.match(/Chrome\/(\d+)\./)[1], 10);
                                 if (chromeVersion < 20) {
                                     videoSelector = 'video';
                                 }
@@ -10294,7 +10537,7 @@ dy = 0;
 
                             this.webCamStream = null;
 
-                            LOG('updateWebCam: calling getUserMedia.');
+                            //LOG('updateWebCam: calling getUserMedia.');
 
                             navigator.getUserMedia(
                                 videoSelector,
@@ -10410,7 +10653,9 @@ dy = 0;
                         video.src = '';
 
                         if (this.webCamStream) {
-                            this.webCamStream.stop();
+                            if (this.webCamStream.stop) {
+                                this.webCamStream.stop();
+                            }
                             this.webCamStream = null;
                         }
 
@@ -10572,7 +10817,7 @@ dy = 0;
                                             $.proxy(
                                                 function handle_headTrackerStatus(event) {
 
-                                                    LOG('handle_headTrackerStatus', event.status);
+                                                    //LOG('handle_headTrackerStatus', event.status);
 
                                                     if (!this.headTrackerEnabled) {
                                                         return;
@@ -10833,17 +11078,6 @@ dy = 0;
     // initCanvas initializes the canvas.
     CAM6.prototype.initCanvas = function initCanvas() {
 
-        this.cellCanvasPixelWidth = this.cellWidth;
-        this.cellCanvasPixelHeight = this.cellHeight;
-
-        if (this.doHistogram) {
-            this.cellCanvasPixelHeight +=
-                this.histogramGapHeight +
-                this.histogramToolCellHeight +
-                this.histogramHeaderHeight +
-                this.histogramGraphHeight;
-        }
-
         this.scaleCanvas();
 
         this.cellCanvasContext =
@@ -10851,8 +11085,8 @@ dy = 0;
 
         this.cellCanvasImageData =
             this.cellCanvasContext.createImageData(
-                this.cellCanvasPixelWidth,
-                this.cellCanvasPixelHeight);
+                this.cellWidth,
+                this.cellHeight);
 
         this.cellCanvasData =
             this.cellCanvasImageData.data;
@@ -10860,15 +11094,12 @@ dy = 0;
         if (this.useGUI) {
 
             this.$cellCanvas
-                .on(
-                    'mousedown.cam',
-                    $.proxy(this.trackDown, this))
-                .on(
-                    'mousemove.cam',
-                    $.proxy(this.trackMove, this))
-                .on(
-                    'mousewheel.cam',
-                    $.proxy(this.trackWheel, this));
+                .on('mousedown.cells',
+                    $.proxy(this.trackCellCanvasDown, this))
+                .on('mousemove.cells',
+                    $.proxy(this.trackCellCanvasMove, this))
+                .on('mousewheel.cells',
+                    $.proxy(this.trackCellCanvasWheel, this));
 
             this.compositionOverlayContext =
                 this.$compositionOverlay[0].getContext('2d');
@@ -10881,15 +11112,15 @@ dy = 0;
     };
 
 
-    // scaleCanvas sets the scale of the canvas.
+    // scaleCanvasToWindow sets the scale of the canvas to the window size.
     CAM6.prototype.scaleCanvasToWindow = function scaleCanvasToWindow() {
-        var windowWidth = this.$window.width();
-        var windowHeight = this.$window.height();
-        var scale = Math.min(
-            windowWidth / this.cellWidth,
-            windowHeight / this.cellHeight);
-        this.cellScale = scale;
+
+        this.windowWidth = this.$window.width();
+        this.windowHeight = this.$window.height();
+
         this.scaleCanvas();
+        this.scaleHistogram();
+        this.glScaleCanvas();
 
         // Must call tick to refresh if paused.
         // This gets called on startup before the cells are defined, so be careful!
@@ -10902,22 +11133,27 @@ dy = 0;
     // scaleCanvas sets the scale of the canvas.
     CAM6.prototype.scaleCanvas = function scaleCanvas() {
 
+        var width = this.cellWidth * this.cellCanvasScale;
+        var height = this.cellHeight * this.cellCanvasScale;
+
+/*
         this.$cellCanvasFrame
             .css({
-                width: (this.cellCanvasPixelWidth * this.cellScale) + 'px',
-                height: (this.cellCanvasPixelHeight * this.cellScale) + 'px'
+                width: width + 'px',
+                height: height + 'px'
             });
+*/
 
         this.$cellCanvasContainer
             .css({
-                width: (this.cellCanvasPixelWidth * this.cellScale) + 'px',
-                height: (this.cellCanvasPixelHeight * this.cellScale) + 'px'
+                width: width + 'px',
+                height: height + 'px'
             });
 
         this.$webCamVideo
             .css({
-                width: (this.cellWidth * this.cellScale) + 'px',
-                height: (this.cellHeight * this.cellScale) + 'px'
+                width: width + 'px',
+                height: height + 'px'
             });
 
         this.$headTrackerInput
@@ -10926,18 +11162,18 @@ dy = 0;
                 height: this.cellHeight
             })
             .css({
-                width: (this.cellWidth * this.cellScale) + 'px',
-                height: (this.cellHeight * this.cellScale) + 'px'
+                width: width + 'px',
+                height: height + 'px'
             });
 
         this.$cellCanvas
             .attr({
-                width: this.cellCanvasPixelWidth,
-                height: this.cellCanvasPixelHeight
+                width: this.cellWidth,
+                height: this.cellHeight
             })
             .css({
-                width: (this.cellCanvasPixelWidth * this.cellScale) + 'px',
-                height: (this.cellCanvasPixelHeight * this.cellScale) + 'px'
+                width: width + 'px',
+                height: height + 'px'
             });
 
         this.$compositionOverlay
@@ -10946,8 +11182,8 @@ dy = 0;
                 height: this.cellHeight
             })
             .css({
-                width: (this.cellWidth * this.cellScale) + 'px',
-                height: (this.cellHeight * this.cellScale) + 'px'
+                width: width + 'px',
+                height: height + 'px'
             });
 
         this.$feedbackOverlay
@@ -10956,8 +11192,8 @@ dy = 0;
                 height: this.cellHeight
             })
             .css({
-                width: (this.cellWidth * this.cellScale) + 'px',
-                height: (this.cellHeight * this.cellScale) + 'px'
+                width: width + 'px',
+                height: height + 'px'
             });
 
         this.$headTrackerOverlay
@@ -10966,9 +11202,576 @@ dy = 0;
                 height: this.cellHeight
             })
             .css({
-                width: (this.cellWidth * this.cellScale) + 'px',
-                height: (this.cellHeight * this.cellScale) + 'px'
+                width: width + 'px',
+                height: height + 'px'
             });
+
+    };
+
+
+    // trackCellCanvasWheel trackes the mouse wheel.
+    CAM6.prototype.trackCellCanvasWheel = function trackCellCanvasWheel(event, delta, deltaX, deltaY) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        var frob =
+            this.frob + (deltaY * this.frobScale);
+        if (frob != this.frob) {
+            this.setValue(this, 'frob', frob);
+        }
+
+        var phaseOffset =
+            this.phaseOffset + (-deltaX * this.phaseScale);
+
+        phaseOffset -=
+            Math.floor(phaseOffset / 16) * 16;
+
+        //LOG('phaseOffset', phaseOffset, 'deltaX', deltaX, 'phaseScale', this.phaseScale, '(deltaX * this.phaseScale)', (deltaX * this.phaseScale));
+
+        if (phaseOffset != this.phaseOffset) {
+            this.setValue(this, 'phaseOffset', phaseOffset);
+        }
+
+    };
+
+
+    // trackCellCanvasDown tracks a mouse down event.
+    CAM6.prototype.trackCellCanvasDown = function trackCellCanvasDown(event) {
+
+        //LOG("trackCellCanvasDown", event);
+
+        event.stopPropagation();
+        event.preventDefault();
+
+        if (event.which == 3) {
+            this.$pie.pie('startPie', event, 'default', false);
+            return;
+        }
+
+        this.trackCellCanvasMoveSub(event);
+
+        this.setValue(this, 'mouseButton', true);
+        this.setValue(this, 'mouseDownX', this.mouseX);
+        this.setValue(this, 'mouseDownY', this.mouseY);
+        this.setValue(this, 'mouseLastX', this.mouseX);
+        this.setValue(this, 'mouseLastY', this.mouseY);
+
+        var toolDict =
+            this.get_tool_by_symbol(
+                this.toolSymbol);
+
+        var activeToolDict =
+            this.userTools[this.toolSymbol];
+
+        if (!activeToolDict) {
+
+            activeToolDict = {
+                enabled: true,
+                toolSymbol: this.toolSymbol,
+                step: this.step
+            };
+
+            this.userTools[this.toolSymbol] =
+                activeToolDict;
+
+        }
+
+        this.initActiveTool(
+            activeToolDict);
+
+        this.removeActiveTool(
+            null, // No particular tool symbol.
+            'editingTool', // Remove tools in this editing channel.
+            0); // Remove all matching tools.
+
+        this.addActiveTool(
+            activeToolDict,
+            'editingTool',
+            this.trackingCellsLayer);
+
+        this.recordToolBegin(
+            toolDict,
+            activeToolDict);
+
+        this.trackingCells = true;
+        this.trackingCellsActiveToolDict = activeToolDict;
+
+        this.$cellCanvas
+            .off('mousemove.cells');
+
+        this.$document
+            .on('mousemove.cells',
+                $.proxy(this.trackCellCanvasDrag, this))
+            .on('mouseup.cells',
+                $.proxy(this.trackCellCanvasUp, this));
+
+        //LOG("trackCellCanvasDown started tracking", this, activeToolDict);
+
+        if (this.paused) {
+            this.tick();
+        }
+
+    };
+
+
+    // trackCellCanvasDrag tracks a mouse move event.
+    CAM6.prototype.trackCellCanvasDrag = function trackCellCanvasDrag(event) {
+
+        //LOG("trackCellCanvasDrag", event);
+
+        event.stopPropagation();
+        event.preventDefault();
+
+        this.trackCellCanvasMoveSub(event);
+
+        if (this.paused) {
+            this.tick();
+        }
+
+    };
+
+
+    // trackCellCanvasMove tracks a mouse move event.
+    CAM6.prototype.trackCellCanvasMove = function trackCellCanvasMove(event) {
+
+        //LOG("trackCellCanvasMove", event);
+
+        event.stopPropagation();
+        event.preventDefault();
+
+        this.trackCellCanvasMoveSub(event);
+
+    };
+
+
+    // trackCellCanvasMoveSub tracks a mouse move event.
+    CAM6.prototype.trackCellCanvasMoveSub = function trackCellCanvasMoveSub(event) {
+
+        var offset = this.$cellCanvas.offset();
+        var x = event.pageX - offset.left;
+        var y = event.pageY - offset.top;
+
+        this.setValue(this, 'mouseX', Math.floor(x / this.cellCanvasScale));
+        this.setValue(this, 'mouseY', Math.floor(y / this.cellCanvasScale));
+
+        //console.log("trackCellCanvasMoveSub", "mouse", this.mouseX, this.mouseY, "offset", offset, offset.left, offset.top, "x", x, "y", y, "event", event, "$cellCanvas", this.$cellCanvas, this.$cellCanvas[0]);
+
+    };
+
+
+    // trackCellCanvasUp tracks a mouse up event.
+    CAM6.prototype.trackCellCanvasUp = function trackCellCanvasUp(event) {
+
+        //LOG("trackCellCanvasUp", event);
+
+        event.stopPropagation();
+        event.preventDefault();
+
+        this.trackCellCanvasMoveSub(event);
+
+        this.setValue(this, 'mouseButton', false);
+
+        if (event.shiftKey) {
+
+            // Make the tool stick.
+
+        } else {
+
+            var activeToolDict =
+                this.trackingCellsActiveToolDict;
+            var toolSymbol =
+                activeToolDict.toolSymbol;
+
+            this.recordToolEnd(
+                this.tool_by_symbol[toolSymbol]);
+
+            this.removeActiveTool(
+                activeToolDict.activeToolSymbol, // Remove this particular activeTool.
+                null, // Tools in any channel.
+                1); // Remove one.
+
+        }
+
+        this.trackingCells = false;
+        this.trackingCellsActiveToolDict = null;
+
+        this.clearCompositionOverlay();
+        this.clearFeedbackOverlay();
+
+        this.$document
+            .off('mousemove.cells')
+            .off('mouseup.cells');
+
+        this.$cellCanvas
+            .on('mousemove.cells')
+                $.proxy(this.trackCellCanvasMove, this);
+
+        if (this.paused) {
+            this.tick();
+        }
+
+    };
+
+
+    // initHistogram initializes the histogram.
+    CAM6.prototype.initHistogram = function initHistogram() {
+
+        this.histogramCanvasWidth = 256;
+        this.histogramCanvasHeight =
+            this.histogramToolCellHeight +
+            this.histogramHeaderHeight +
+            this.histogramGraphHeight;
+
+        this.scaleHistogram();
+
+        this.histogramCanvasContext =
+            this.$histogramCanvas[0].getContext('2d');
+
+        this.histogramCanvasImageData =
+            this.histogramCanvasContext.createImageData(
+                this.histogramCanvasWidth,
+                this.histogramCanvasHeight);
+
+        this.histogramCanvasData =
+            this.histogramCanvasImageData.data;
+
+        if (this.useGUI) {
+
+            this.$histogramCanvas
+                .on('mousedown.histogram',
+                    $.proxy(this.trackHistogramCanvasDown, this))
+                .on('mousewheel.histogram',
+                    $.proxy(this.trackHistogramCanvasWheel, this));
+
+        }
+
+    };
+
+
+    CAM6.prototype.scaleHistogram = function scaleHistogram() {
+
+        var width = this.histogramCanvasWidth * this.histogramCanvasScale;
+        var height = this.histogramCanvasHeight * this.histogramCanvasScale;
+
+        this.$histogramCanvasContainer
+            .css({
+                width: width + 'px',
+                height: height + 'px'
+            });
+
+        this.$histogramCanvas
+            .attr({
+                width: this.histogramCanvasWidth,
+                height: this.histogramCanvasHeight
+            })
+            .css({
+                width: width + 'px',
+                height: height + 'px'
+            });
+
+        if (this.doHistogram) {
+            this.$histogramCanvasFrame.show();
+            this.$mapFrameBr.show();
+        } else {
+            this.$histogramCanvasFrame.hide();
+            this.$mapFrameBr.hide();
+        }
+
+    };
+
+
+    // trackHistogramCanvasWheel trackes the mouse wheel.
+    CAM6.prototype.trackHistogramCanvasWheel = function trackHistogramCanvasWheel(event, delta, deltaX, deltaY) {
+        event.stopPropagation();
+        event.preventDefault();
+        this.trackCellCanvasWheel(event, delta, deltaX, deltaY);
+    };
+
+
+    // trackHistogramCanvasDown tracks a mouse down event.
+    CAM6.prototype.trackHistogramCanvasDown = function trackHistogramCanvasDown(event) {
+
+        //LOG("trackHistogramCanvasDown", event);
+
+        event.stopPropagation();
+        event.preventDefault();
+
+        if (event.which == 3) {
+            this.$pie.pie('startPie', event, 'histogram', false);
+            return;
+        }
+
+        this.trackHistogramCanvasMoveSub(event);
+
+        this.setValue(this, 'mouseButton', true);
+        this.setValue(this, 'mouseDownX', this.mouseX);
+        this.setValue(this, 'mouseDownY', this.mouseY);
+        this.setValue(this, 'mouseLastX', this.mouseX);
+        this.setValue(this, 'mouseLastY', this.mouseY);
+
+        this.trackingHistogram = true;
+        this.trackingCellsActiveToolDict = null;
+
+        this.$document
+            .on('mousemove.histogram',
+                $.proxy(this.trackHistogramCanvasDrag, this))
+            .on('mouseup.histogram',
+                $.proxy(this.trackHistogramCanvasUp, this));
+
+        if (this.paused) {
+            this.tick();
+        }
+
+    };
+
+
+    // trackHistogramCanvasDrag tracks a mouse move event.
+    CAM6.prototype.trackHistogramCanvasDrag = function trackHistogramCanvasDrag(event) {
+
+        LOG("trackHistogramCanvasDrag", event);
+
+        event.stopPropagation();
+        event.preventDefault();
+
+        this.trackHistogramCanvasMoveSub(event);
+
+        if (this.paused) {
+            this.tick();
+        }
+
+    };
+
+
+    // trackHistogramCanvasMove tracks a mouse move event.
+    CAM6.prototype.trackHistogramCanvasMove = function trackHistogramCanvasMove(event) {
+
+        //LOG("trackHistogramCanvasMove", event);
+
+        event.stopPropagation();
+        event.preventDefault();
+
+        this.trackHistogramCanvasMoveSub(event);
+
+    };
+
+
+    // trackHistogramCanvasMoveSub tracks a mouse move event.
+    CAM6.prototype.trackHistogramCanvasMoveSub = function trackHistogramCanvasMoveSub(event) {
+
+        var offset = this.$histogramCanvas.offset();
+        var x = event.pageX - offset.left;
+        var y = event.pageY - offset.top;
+
+        this.setValue(this, 'histogramMouseX', Math.floor(x / this.histogramCanvasScale));
+        this.setValue(this, 'histogramMouseY', Math.floor(y / this.histogramCanvasScale));
+
+    };
+
+
+    // trackHistogramCanvasUp tracks a mouse up event.
+    CAM6.prototype.trackHistogramCanvasUp = function trackHistogramCanvasUp(event) {
+
+        //LOG("trackHistogramCanvasUp", event);
+
+        event.stopPropagation();
+        event.preventDefault();
+
+        this.trackHistogramCanvasMoveSub(event);
+
+        this.setValue(this, 'mouseButton', false);
+
+        this.trackingHistogram = false;
+
+        this.$document
+            .off('mousemove.histogram')
+            .off('mouseup.histogram');
+
+        if (this.paused) {
+            this.tick();
+        }
+
+    };
+
+
+    CAM6.prototype.glInit = function glInit() {
+
+        twgl.setDefaults({
+            attribPrefix: "a_"
+        });
+
+        var gl =
+            twgl.getWebGLContext(
+                this.$glCanvas[0]);
+        this.gl = gl;
+        //LOG("gl", gl);
+
+		gl.getExtension(
+            'OES_standard_derivatives');
+
+        this.glTilesImage =
+            this.get_image_by_symbol(
+                this.glTilesImageSymbol);
+        //LOG("glTilesImage", this.glTilesImage);
+
+        this.glTilesTextureInfo = { 
+            min: gl.NEAREST,
+            mag: gl.NEAREST,
+            wrap: gl.REPEAT,
+            src: this.glTilesImage.image
+        };
+        //LOG("glTilesTextureInfo", this.glTilesTextureInfo);
+
+        this.glTilesTexture = twgl.createTexture(gl, this.glTilesTextureInfo);
+        //LOG("glTilesTexture", this.glTilesTexture);
+
+        this.glTileProgramInfo =
+            twgl.createProgramInfo(gl,
+                ['tileVertexShader', 'tileFragmentShader']);
+        //LOG('glTileProgramInfo', this.glTileProgramInfo);
+
+        this.glCells0TextureInfo = {
+            format: gl.ALPHA,
+            min: gl.NEAREST,
+            mag: gl.NEAREST,
+            wrap: gl.CLAMP_TO_EDGE,
+            src: this.cells0,
+            width: this.cellBufferWidth,
+            height: this.cellBufferHeight
+        };
+        //LOG('glCells0TextureInfo', this.glCells0TextureInfo);
+
+        this.glCells0Texture = twgl.createTexture(gl, this.glCells0TextureInfo);
+        //LOG('glCells0Texture', this.glCells0Texture);
+
+        this.glCells1TextureInfo = {
+            format: gl.ALPHA,
+            min: gl.NEAREST,
+            mag: gl.NEAREST,
+            wrap: gl.CLAMP_TO_EDGE,
+            src: this.cells1,
+            width: this.cellBufferWidth,
+            height: this.cellBufferHeight
+        };
+        //LOG('glCells1TextureInfo', this.glCells1TextureInfo);
+
+        this.glCells1Texture = twgl.createTexture(gl, this.glCells1TextureInfo), 
+        //LOG('glCells1Texture', this.glCells1Texture);
+
+        this.positionArray = new Float32Array([
+            -1, -1, 0, 
+             1, -1, 0,
+            -1,  1, 0,
+            -1,  1, 0, 
+             1, -1, 0, 
+             1,  1, 0]);
+
+        this.screenTileArray = new Float32Array([
+             0, 10,
+             10, 10,
+             0, 0,
+             0, 0,
+             10, 10,
+             10, 0]);
+
+        this.glTileBufferInfo =
+            twgl.createBufferInfoFromArrays(gl, {
+                position: {
+                    data: this.positionArray,
+                    numComponents: 3,
+                    drawType: gl.STATIC_DRAW
+                },
+                screenTile: {
+                    data: this.screenTileArray,
+                    numComponents: 2,
+                    drawType: gl.DYNAMIC_DRAW
+                }
+            });
+        //LOG('glTileBufferInfo', this.glTileBufferInfo);
+
+    };
+
+
+    CAM6.prototype.glScaleCanvas = function glScaleCanvas() {
+
+        this.$glCanvas
+            .attr({
+                width: this.windowWidth,
+                height: this.windowHeight
+            })
+            .css({
+                width: this.windowWidth + 'px',
+                height: this.windowHeight + 'px'
+            });
+
+    };
+
+    CAM6.prototype.glRender = function glRender() {
+
+        var gl = this.gl;
+        var cells = this.paused ? this.getNextCells() : this.getCells();
+        var cellWidth = this.cellWidth;
+        var cellHeight = this.cellHeight;
+        var cellGutter = this.cellGutter;
+        var cellBufferWidth = this.cellBufferWidth;
+        var cellBufferHeight = this.cellBufferHeight;
+        var cellIndex = (cellGutter * cellBufferWidth) + cellGutter;
+
+        twgl.resizeCanvasToDisplaySize(gl.canvas);
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        var cellsTextureInfo = this.phaseTime ? this.glCells1TextureInfo : this.glCells0TextureInfo;
+        var cellsTexture = this.phaseTime ? this.glCells1Texture : this.glCells0Texture;
+        var cells = this.phaseTime ? this.cells1 : this.cells0;
+
+        gl.bindTexture(gl.TEXTURE_2D, cellsTexture);
+
+        //console.log("texImage2D", "target", gl.TEXTURE_2D, "0", 0, "format", cellsTextureInfo.format, "width", cellBufferWidth, "height", this.cellBufferHeight, "0", 0, "format", cellsTextureInfo.format, "type", gl.UNSIGNED_BYTE, "src", cellsTextureInfo.src); 
+        gl.texImage2D(gl.TEXTURE_2D, 0, cellsTextureInfo.format, cellBufferWidth, this.cellBufferHeight, 0, cellsTextureInfo.format, gl.UNSIGNED_BYTE, cellsTextureInfo.src);
+
+        gl.useProgram(
+            this.glTileProgramInfo.program);
+
+        var left = this.glPanX;
+        var right = left + gl.canvas.width / this.glScale;
+        var top = this.glPanY;
+        var bottom = top + gl.canvas.height / this.glScale;
+        var a = this.screenTileArray;
+
+        a[0] = a[4] = a[6]  = left;
+        a[2] = a[8] = a[10] = right;
+        a[1] = a[3] = a[9]  = bottom;
+        a[5] = a[7] = a[11] = top
+
+        twgl.setAttribInfoBufferFromArray(
+            gl, 
+            this.glTileBufferInfo.attribs.a_screenTile,
+            a);
+
+        twgl.setBuffersAndAttributes(
+            gl,
+            this.glTileProgramInfo,
+            this.glTileBufferInfo);
+
+        var uniforms = {
+            u_tileSize: [this.glTileSize, this.glTileSize],
+            u_tilesSize: [this.glTilesImage.image.width, this.glTilesImage.image.height],
+            u_tiles: this.glTilesTexture,
+            u_cellsSize: [cellBufferWidth, cellBufferHeight],
+            u_cells: cellsTexture,
+            u_gutter: cellGutter
+        };
+        //console.log(uniforms);
+
+        twgl.setUniforms(
+            this.glTileProgramInfo,
+            uniforms);
+
+        twgl.drawBufferInfo(
+            gl,
+            gl.TRIANGLES,
+            this.glTileBufferInfo);
 
     };
 
@@ -10980,13 +11783,14 @@ dy = 0;
             return;
         }
 
-        this.$window =
-            $(window);
+        this.$window = $(window);
+        this.$document = $(document);
+        this.$body = $(document.body);
 
         this.$parent =
             this.params.$parent ||
             this.$parent ||
-            $(document.body);
+            this.$body;
 
         this.$root =
             $('<div/>')
@@ -10998,6 +11802,11 @@ dy = 0;
                 .addClass('cam6-content')
                 .appendTo(this.$root);
 
+        this.$glCanvas =
+            $('<canvas/>')
+                .addClass('cam6-glCanvas')
+                .appendTo(this.$content);
+
         this.$tabsFrame =
             $('<div/>')
                 .addClass('cam6-tabsFrame')
@@ -11008,10 +11817,36 @@ dy = 0;
                 .addClass('cam6-tabsContainer')
                 .appendTo(this.$tabsFrame);
 
+        this.$mapFrame =
+            $('<div/>')
+                .addClass('cam6-mapFrame')
+                .appendTo(this.$content);
+
+        this.$histogramCanvasFrame =
+            $('<div/>')
+                .addClass('cam6-histogramCanvasFrame')
+                .appendTo(this.$mapFrame)
+                .draggable();
+
+        this.$histogramCanvasContainer =
+            $('<div/>')
+                .addClass('cam6-histogramCanvasContainer')
+                .appendTo(this.$histogramCanvasFrame);
+
+        this.$histogramCanvas =
+            $('<canvas/>')
+                .addClass('cam6-histogramCanvas')
+                .appendTo(this.$histogramCanvasContainer);
+
+        this.$mapFrameBr =
+            $('<br/>')
+                .appendTo(this.$mapFrame);
+
         this.$cellCanvasFrame =
             $('<div/>')
                 .addClass('cam6-cellCanvasFrame')
-                .appendTo(this.$content);
+                .appendTo(this.$mapFrame)
+                .draggable();
 
         this.$cellCanvasContainer =
             $('<div/>')
@@ -11063,8 +11898,15 @@ dy = 0;
         this.makeParamsGUI();
         this.makeHintsGUI();
         this.makeWikiGUI();
+        this.makePieGUI();
 
-        this.$window.on('resize', $.proxy(this.scaleCanvasToWindow, this));
+        this.$body
+            .on('contextmenu',
+                function handleContextMenu() { return false; });
+
+        this.$window
+            .on('resize', 
+                $.proxy(this.scaleCanvasToWindow, this));
 
         this.scaleCanvasToWindow();
 
@@ -11553,6 +12395,519 @@ dy = 0;
 
     };
 
+
+    CAM6.prototype.makePieGUI = function makePieGUI() {
+
+        var cam = this;
+
+        function makeCommandItems(commandSymbols) {
+
+            var items = [];
+
+            for (var i = 0, n = commandSymbols.length;
+                 i < n;
+                 i++) {
+
+                var commandSymbol = commandSymbols[i];
+                var commandDict = cam.command_by_symbol[commandSymbol];
+
+                var isVisibleFunction = commandDict.isVisibleFunction;
+                var isVisible =
+                    !isVisibleFunction ||
+                    isVisibleFunction.call(
+                        cam, commandDict);
+                if (!isVisible) {
+                    continue;
+                }
+
+                var isEnabledFunction = commandDict.isEnabledFunction;
+                var isEnabled =
+                    !isEnabledFunction ||
+                    isEnabledFunction.call(
+                        cam, commandDict);
+                if (!isEnabled) {
+                    continue;
+                }
+
+                var name = commandDict.getNameFunction.call(
+                  cam, commandDict);
+
+                items.push({
+                    label: name,
+                    commandDict: commandDict,
+                    onpieitemselect: function (event, pie, pieSlice, pieItem) {
+
+                        var commandDict = pieItem.commandDict;
+                        var params = {
+                            randomSeed: cam.newRandomSeed()
+                        };
+
+                        LOG("pieselect", event, pie, pieSlice, pieItem, cam, commandDict);
+
+                        cam.playCommand(
+                            commandDict,
+                            params);
+
+                        if (cam.scriptRecording &&
+                            cam.recordingCommands) {
+
+                            cam.recordCommand(
+                                commandDict,
+                                params);
+
+                        }
+
+                    }
+                });
+
+            }
+
+            return items;
+        }
+
+        function makeRuleItems(ruleSymbols) {
+
+            var items = [];
+
+            for (var i = 0, n = ruleSymbols.length;
+                 i < n;
+                 i++) {
+
+                var ruleSymbol = ruleSymbols[i];
+                var ruleDict = cam.rule_by_symbol[ruleSymbol];
+
+                items.push({
+                    label: ruleDict.name,
+                    ruleDict: ruleDict,
+                    onpieitemselect: function (event, pie, pieSlice, pieItem) {
+                        var ruleDict = pieItem.ruleDict;
+                        cam.ruleSymbol = ruleDict.symbol;
+                        cam.updateParamVisibility();
+                    }
+                });
+
+            }
+
+            return items;
+        }
+
+        function makeToolItems(toolSymbols) {
+
+            var items = [];
+
+            for (var i = 0, n = toolSymbols.length;
+                 i < n;
+                 i++) {
+
+                var toolSymbol = toolSymbols[i];
+                var toolDict = cam.tool_by_symbol[toolSymbol];
+
+                items.push({
+                    label: toolDict.name,
+                    toolDict: toolDict,
+                    onpieitemselect: function (event, pie, pieSlice, pieItem) {
+                        var toolDict = pieItem.toolDict;
+                        cam.toolSymbol = toolDict.symbol;
+                        cam.updateParamVisibility();
+                    }
+                });
+
+            }
+
+            return items;
+        }
+
+        function makeColormapItems() {
+
+            var items = [];
+
+            for (var i = 0, n = cam.colorMap_objects.length;
+                 i < n;
+                 i++) {
+
+                var colorMapDict = cam.colorMap_objects[i];
+
+                items.push({
+                    label: colorMapDict.name,
+                    colorMapDict: colorMapDict,
+                    onpieitemselect: function (event, pie, pieSlice, pieItem) {
+                        var colorMapDict = pieItem.colorMapDict;
+                        cam.colorMapSymbol = colorMapDict.symbol;
+                        cam.updateParamVisibility();
+                    }
+                });
+
+            }
+
+            return items;
+        }
+
+        function makeToolCellItems() {
+
+            var ruleDict = cam.rule_by_symbol[cam.ruleSymbol];
+            var toolCells = ruleDict['toolCells'] || [0, 1, 2, 3, 4, 5, 6, 7];
+            var items = [];
+
+            for (var i = 0, n = toolCells.length;
+                 i < n;
+                 i++) {
+
+                var item = toolCells[i];
+
+                var label;
+                var toolCell;
+                if (Array.isArray(item)) {
+                    label = item[0];
+                    toolCell = item[1];
+                } else {
+                    label = '' + item;
+                    toolCell = item;
+                }
+
+                items.push({
+                    label: label,
+                    toolCell: toolCell,
+                    onpieitemselect: function (event, pie, pieSlice, pieItem) {
+                        var toolCell = pieItem.toolCell;
+                        cam.setValue(cam, 'toolCell', toolCell);
+                    }
+                });
+
+            }
+
+            return items;
+        }
+
+        this.pies = {
+
+            'default': {
+                pieTitle: 'CAM6',
+                itemDistanceMin: 100,
+                slices: [
+                    {
+                        sliceDirection: 'North',
+                        items: [
+                            {
+                                label: 'Commands',
+                                nextPie: 'commands'
+                            }
+                        ]
+                    },
+                    {
+                        sliceDirection: 'South',
+                        items: [
+                            {
+                                label: 'Simulation',
+                                nextPie: 'simulation'
+                            }
+                        ]
+                    },
+                    {
+                        sliceDirection: 'West',
+                        items: [
+                            {
+                                label: 'Rules',
+                                nextPie: 'rules'
+                            }
+                        ]
+                    },
+                    {
+                        sliceDirection: 'East',
+                        items: [
+                            {
+                                label: 'Tools',
+                                nextPie: 'tools'
+                            }
+                        ]
+                    },
+                    {
+                        sliceDirection: 'NorthWest',
+                        items: [
+                            {
+                                label: 'North West',
+                                itemOffsetY: -20,
+                                nextPie: 'commands'
+                            }
+                        ]
+                    },
+                    {
+                        sliceDirection: 'NorthEast',
+                        items: [
+                            {
+                                label: 'North East',
+                                itemOffsetY: -20,
+                                nextPie: 'commands'
+                            }
+                        ]
+                    },
+                    {
+                        sliceDirection: 'SouthWest',
+                        items: [
+                            {
+                                onpieitemshow: function(event, pie, slice, item) {
+                                    var name = cam.rule_by_symbol[cam.ruleSymbol].name;
+                                    item.label = name;
+                                },
+                                label: '[Current Rule Name]',
+                                itemOffsetY: 20,
+                                nextPie: 'currentRule'
+                            }
+                        ]
+                    },
+                    {
+                        sliceDirection: 'SouthEast',
+                        items: [
+                            {
+                                onpieitemshow: function(event, pie, slice, item) {
+                                    var name = cam.tool_by_symbol[cam.toolSymbol].name;
+                                    item.label = name;
+                                },
+                                label: '[Current Tool Name]',
+                                itemOffsetY: 20,
+                                nextPie: 'currentTool'
+                            }
+                        ]
+                    }
+                ]
+            },
+
+            'commands': {
+                pieTitle: 'Commands',
+                itemDistanceMin: 70,
+                onpieshow: function(event, pie) {
+
+                    LOG("onpieshow", event, pie);
+
+                    // Clear out any existing slices.
+                    this._removePieSlices(pie);
+
+                    pie.slices = [
+                        {
+                            sliceDirection: 'North',
+                            items: makeCommandItems(['startRecording', 'stopRecording', 'startPlaying', 'stopPlaying', 'save'])
+                        },
+                        {
+                            sliceDirection: 'South',
+                            items: makeCommandItems(['clear', 'randomize', 'initialize'])
+                        },
+                        {
+                            sliceDirection: 'West',
+                            items: makeCommandItems(['fullscreenMode', 'windowMode'])
+                        },
+                        {
+                            sliceDirection: 'East',
+                            items: makeCommandItems(['pause', 'resume'])
+                        }
+                    ];
+
+                    LOG("pie.slices", pie.slices);
+
+                }
+            },
+
+            'tools': {
+                pieTitle: 'Tools',
+                slices: [
+                    {
+                        sliceDirection: 'North',
+                        items: makeToolItems(['squareBrush'])
+                    },
+                    {
+                        sliceDirection: 'South',
+                        items: makeToolItems(['circularBrush'])
+                    },
+                    {
+                        sliceDirection: 'West',
+                        items: makeToolItems(['squareSpray'])
+                    },
+                    {
+                        sliceDirection: 'East',
+                        items: makeToolItems(['line'])
+                    },
+                    {
+                        sliceDirection: 'NorthWest',
+                        items: makeToolItems(['circularRandomSpray'])
+                    },
+                    {
+                        sliceDirection: 'NorthEast',
+                        items: makeToolItems(['squareRandomSpray'])
+                    },
+                    {
+                        sliceDirection: 'SouthWest',
+                        items: makeToolItems(['circularRandomSpray'])
+                    },
+                    {
+                        sliceDirection: 'SouthEast',
+                        items: makeToolItems(['circularSpray'])
+                    }
+                ]
+            },
+
+            'currentTool': {
+                pieTitle: 'Current Tool',
+                slices: [
+                    {
+                        sliceDirection: 'South',
+                        items: []
+                    }
+                ]
+            },
+
+            'rules': {
+                pieTitle: 'Rules',
+                slices: [
+                    {
+                        sliceDirection: 'South',
+                        items: makeRuleItems([])
+                    }
+                ]
+            },
+
+            'currentRule': {
+                pieTitle: 'Current Rule',
+                slices: [
+                    {
+                        sliceDirection: 'South',
+                        items: []
+                    }
+                ]
+            },
+
+            'simulation': {
+                pieTitle: 'Simulation',
+                slices: [
+                    {
+                        sliceDirection: 'South',
+                        items: []
+                    }
+                ]
+            },
+
+            'histogram': {
+                itemDistanceMin: 70,
+                pieTitle: 'Histogram',
+                slices: [
+                    {
+                        sliceDirection: 'South',
+                        items: [
+                            {
+                                label: 'Select Color Map',
+                                nextPie: 'histogramSelectColorMap'
+                            }
+                        ]
+                    },
+                    {
+                        sliceDirection: 'West',
+                        items: [
+                            {
+                                label: 'Select Tool Cell',
+                                nextPie: 'histogramSelectToolCell'
+                            }
+                        ]
+                    },
+                    {
+                        sliceDirection: 'East',
+                        items: [
+                            {
+                                label: '-'
+                            }
+                        ]
+                    },
+                    {
+                        sliceDirection: 'SouthWest',
+                        items: [
+                            {
+                                label: '-'
+                            }
+                        ]
+                    },
+                    {
+                        sliceDirection: 'SouthEast',
+                        items: [
+                            {
+                                label: '-'
+                            }
+                        ]
+                    }
+                ]
+            },
+
+            'histogramSelectColorMap': {
+                itemDistanceMin: 20,
+                pieTitle: 'Select Color Map',
+                slices: [
+                    {
+                        sliceDirection: 'South',
+                        items: makeColormapItems()
+                    }
+                ]
+            },
+
+            'histogramSelectToolCell': {
+                itemDistanceMin: 20,
+                pieTitle: 'Select Tool Cell',
+                onpieshow: function(event, pie) {
+                    var sliceDict = pie.slices[2];
+                    this._removeSliceItems(sliceDict);
+                    sliceDict.items = makeToolCellItems();
+                },
+                slices: [
+                    {
+                        sliceDirection: 'East',
+                        items: [
+                            {
+                                label: 'Pull Right',
+                                itemDistanceMin: 80,
+                                onpieitemupdate: function(event, target, pie, pieslice, pieitem) {
+                                    if (pie.$pieTitle) {
+                                        pie.$pieTitle.text('Distance: ' + pie.distance);
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        sliceDirection: 'West',
+                        items: [
+                            {
+                                label: 'Pull Left',
+                                itemDistanceMin: 80,
+                                onpieitemupdate: function(event, target, pie, pieslice, pieitem) {
+                                    if (pie.$pieTitle) {
+                                        pie.$pieTitle.text('Distance: ' + pie.distance);
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        sliceDirection: 'South'
+                    }
+                ]
+            }
+
+        };
+
+        this.pieOptions = {
+            root: this.$root,
+            defaultPie: 'default',
+            pies: this.pies,
+            sliceItemLayout: 'nonOverlapping',
+            itemDistanceMin: 100,
+            draggyPin: false,
+            pieItemCSS: {
+                whiteSpace: 'nowrap'
+            }
+        };
+
+        this.$pie =
+            $('<div/>')
+                .addClass('cam6-pieTarget')
+                .pie(this.pieOptions);
+
+    };
+
+
     // updateParamVisibility turns param editor on and off according to
     // if the current tool or rule depend on them.
     CAM6.prototype.updateParamVisibility = function updateParamVisibility() {
@@ -11584,201 +12939,6 @@ dy = 0;
                 $div.css('display', 'none');
             }
 
-        }
-
-    };
-
-
-    // trackWheel trackes the mouse wheel.
-    CAM6.prototype.trackWheel = function trackWheel(event, delta, deltaX, deltaY) {
-        event.stopPropagation();
-        event.preventDefault();
-
-        var frob =
-            this.frob + (deltaY * this.frobScale);
-        if (frob != this.frob) {
-            this.setValue(this, 'frob', frob);
-        }
-
-        var phaseOffset =
-            this.phaseOffset + (-deltaX * this.phaseScale);
-
-        phaseOffset -=
-            Math.floor(phaseOffset / 16) * 16;
-
-        //LOG('phaseOffset', phaseOffset, 'deltaX', deltaX, 'phaseScale', this.phaseScale, '(deltaX * this.phaseScale)', (deltaX * this.phaseScale));
-
-        if (phaseOffset != this.phaseOffset) {
-            this.setValue(this, 'phaseOffset', phaseOffset);
-        }
-
-
-    };
-
-
-    // trackDown tracks a mouse down event.
-    CAM6.prototype.trackDown = function trackDown(event) {
-
-        this.trackMoveSub(event);
-
-        this.setValue(this, 'mouseButton', true);
-        this.setValue(this, 'mouseDownX', this.mouseX);
-        this.setValue(this, 'mouseDownY', this.mouseY);
-        this.setValue(this, 'mouseLastX', this.mouseX);
-        this.setValue(this, 'mouseLastY', this.mouseY);
-
-        if (this.mouseDownY < this.cellHeight) {
-
-            var toolDict =
-                this.get_tool_by_symbol(
-                    this.toolSymbol);
-
-            var activeToolDict =
-                this.userTools[this.toolSymbol];
-
-            if (!activeToolDict) {
-
-                activeToolDict = {
-                    enabled: true,
-                    toolSymbol: this.toolSymbol,
-                    step: this.step
-                };
-
-                this.userTools[this.toolSymbol] =
-                    activeToolDict;
-
-            }
-
-            this.initActiveTool(
-                activeToolDict);
-
-            this.removeActiveTool(
-                null, // No particular tool symbol.
-                'editingTool', // Remove tools in this editing channel.
-                0); // Remove all matching tools.
-
-            this.addActiveTool(
-                activeToolDict,
-                'editingTool',
-                this.trackingCellsLayer);
-
-            this.recordToolBegin(
-                toolDict,
-                activeToolDict);
-
-            this.trackingCells = true;
-            this.trackingCellsActiveToolDict = activeToolDict;
-
-        } else {
-            this.trackingHistogram = true;
-            this.trackingCellsActiveToolDict = null;
-        }
-
-        this.$cellCanvas
-            .off('mousemove.cam');
-
-        $(document)
-            .on('mousemove.cam',
-                $.proxy(this.trackDrag, this))
-            .on('mouseup.cam',
-                $.proxy(this.trackUp, this));
-
-        if (this.paused) {
-            this.tick();
-        }
-
-    };
-
-
-    // trackMove tracks a mouse move event.
-    CAM6.prototype.trackDrag = function trackDrag(event) {
-
-        event.stopPropagation();
-        event.preventDefault();
-
-        this.trackMoveSub(event);
-
-        if (this.paused) {
-            this.tick();
-        }
-
-    };
-
-
-    // trackMove tracks a mouse move event.
-    CAM6.prototype.trackMove = function trackMove(event) {
-
-        event.stopPropagation();
-        event.preventDefault();
-
-        this.trackMoveSub(event);
-
-    };
-
-
-    // trackMoveSub tracks a mouse move event.
-    CAM6.prototype.trackMoveSub = function trackMoveSub(event) {
-
-        var offset = this.$cellCanvas.offset();
-        var x = event.pageX - offset.left;
-        var y = event.pageY - offset.top;
-
-        this.setValue(this, 'mouseX', Math.floor(x / this.cellScale));
-        this.setValue(this, 'mouseY', Math.floor(y / this.cellScale));
-
-    };
-
-
-    // trackUp tracks a mouse up event.
-    CAM6.prototype.trackUp = function trackUp(event) {
-
-        this.trackMoveSub(event);
-
-        this.setValue(this, 'mouseButton', false);
-
-        if (this.trackingCells) {
-
-            if (event.shiftKey) {
-
-                // Make the tool stick.
-
-            } else {
-
-                var activeToolDict =
-                    this.trackingCellsActiveToolDict;
-                var toolSymbol =
-                    activeToolDict.toolSymbol;
-
-                this.recordToolEnd(
-                    this.tool_by_symbol[toolSymbol]);
-
-                this.removeActiveTool(
-                    activeToolDict.activeToolSymbol, // Remove this particular activeTool.
-                    null, // Tools in any channel.
-                    1); // Remove one.
-
-            }
-
-            this.trackingCells = false;
-            this.trackingCellsActiveToolDict = null;
-
-            this.clearCompositionOverlay();
-            this.clearFeedbackOverlay();
-
-        } else if (this.trackingHistogram) {
-            this.trackingHistogram = false;
-        }
-
-        $(document)
-            .off('mousemove.cam')
-            .off('mouseup.cam');
-
-        this.$cellCanvas
-            .on('mousemove.cam')
-                $.proxy(this.trackMove, this);
-
-        if (this.paused) {
-            this.tick();
         }
 
     };
@@ -11821,11 +12981,11 @@ dy = 0;
         var cells1 = this.cells1;
 
         for (cellY = 0;
-             cellY < this.cellHeight;
+             cellY < cellHeight;
              cellY++) {
 
             for (cellX = 0;
-                 cellX < this.cellWidth;
+                 cellX < cellWidth;
                  cellX++) {
 
                 cells0[cellIndex] = cells1[cellIndex] = cellData[dataIndex];
@@ -11996,7 +13156,9 @@ dy = 0;
         this.wrapCells();
         this.applyAnalyzers();
         this.updateParams();
-        this.renderCellsToCanvas();
+        this.renderCells();
+        this.renderHistogram();
+        this.glRender();
         this.scheduleTick();
 
     };
@@ -12177,8 +13339,12 @@ dy = 0;
     };
 
 
-    // renderCellsToCanvas renders the cells and histogram into the canvas.
-    CAM6.prototype.renderCellsToCanvas = function renderCellsToCanvas() {
+    // renderCells renders the cells into the canvas.
+    CAM6.prototype.renderCells = function renderCells() {
+
+        if (!this.doCellCanvas) {
+            return;
+        }
 
         var cells = this.paused ? this.getNextCells() : this.getCells();
         //var cells = this.getCells();
@@ -12220,198 +13386,101 @@ dy = 0;
 
         }
 
-        // Render the histogram.
+        cellCanvasContext.putImageData(
+            cellCanvasImageData,
+            0, 0);
+    };
 
-        if (this.doHistogram) {
 
-            var histogram = this.histogram;
-            var histogramGapHeight = this.histogramGapHeight;
-            var histogramToolCellHeight = this.histogramToolCellHeight;
-            var histogramHeaderHeight = this.histogramHeaderHeight;
-            var histogramGraphHeight = this.histogramGraphHeight;
+    // renderHistogram renders the histogram into the canvas.
+    CAM6.prototype.renderHistogram = function renderHistogram() {
 
-            pixelIndex = cellWidth * cellHeight * 4;
+        if (!this.doHistogram) {
+            return;
+        }
 
-            // Fill gap with black.
-            var gapSize = histogramGapHeight * cellWidth;
-            for (i = 0;
-                 i < gapSize;
-                 i++) {
-                cellCanvasData[pixelIndex++] = 0;
-                cellCanvasData[pixelIndex++] = 0;
-                cellCanvasData[pixelIndex++] = 0;
-                cellCanvasData[pixelIndex++] = 255;
+        var histogramCanvasContext = this.histogramCanvasContext;
+        var histogramCanvasImageData = this.histogramCanvasImageData;
+        var histogramCanvasData = this.histogramCanvasData;
+        var colorMap = this.getColorMap();
+
+        var histogram = this.histogram;
+        var histogramToolCellHeight = this.histogramToolCellHeight;
+        var histogramHeaderHeight = this.histogramHeaderHeight;
+        var histogramGraphHeight = this.histogramGraphHeight;
+        var pixelIndex = 0;
+
+        var maxHistogram = 0;
+        for (var cell = 0;
+             cell < 256;
+             cell++) {
+
+            var value = histogram[cell];
+
+            if (value > maxHistogram) {
+                maxHistogram = value;
             }
 
-            var cellLimit = Math.min(256, cellWidth);
+        }
 
-            // Draw the tool cell color.
-            var colorMapIndex = this.toolCell * 4;
-            for (var y = 0;
-                 y < histogramToolCellHeight;
-                 y++) {
+        var histogramScale =
+           (maxHistogram
+               ? (histogramGraphHeight / maxHistogram)
+               : 0);
+        var histogramUsefulHeight = histogramGraphHeight - 1;
 
-                for (var cell = 0;
-                     cell < cellLimit;
-                     cell++) {
+        // Draw histogram.
+        for (var y = 0;
+             y < histogramGraphHeight;
+             y++) {
 
-                    if ((cell == this.toolCell - 1) ||
-                        (cell == this.toolCell + 1)) {
+            var yy = (histogramGraphHeight - y) - 1;
+            var countWeight = yy / histogramUsefulHeight;
+            var countWeightNext = (yy + 1) / histogramUsefulHeight;
+            var cutoff = countWeight * maxHistogram;
+            var cutoffNext = countWeightNext * maxHistogram;
 
-                        cellCanvasData[pixelIndex++] = 255;
-                        cellCanvasData[pixelIndex++] = 255;
-                        cellCanvasData[pixelIndex++] = 255;
-                        cellCanvasData[pixelIndex++] = 255;
-
-                    } else {
-
-                        cellCanvasData[pixelIndex++] = colorMap[colorMapIndex + 0];
-                        cellCanvasData[pixelIndex++] = colorMap[colorMapIndex + 1];
-                        cellCanvasData[pixelIndex++] = colorMap[colorMapIndex + 2];
-                        cellCanvasData[pixelIndex++] = colorMap[colorMapIndex + 3];
-
-                    }
-
-                }
-
-                for (;
-                     cell < cellWidth;
-                     cell++) {
-
-                    cellCanvasData[pixelIndex++] = 0;
-                    cellCanvasData[pixelIndex++] = 0;
-                    cellCanvasData[pixelIndex++] = 0;
-                    cellCanvasData[pixelIndex++] = 255;
-
-                }
-
-            }
-
-            // Draw the header, pure colors from the colorMap.
-            for (var y = 0;
-                 y < histogramHeaderHeight;
-                 y++) {
-
-                for (var cell = 0;
-                     cell < cellLimit;
-                     cell++) {
-
-                    if (cell < cellLimit) {
-
-                        var colorMapIndex = cell * 4;
-
-                        cellCanvasData[pixelIndex++] = colorMap[colorMapIndex++];
-                        cellCanvasData[pixelIndex++] = colorMap[colorMapIndex++];
-                        cellCanvasData[pixelIndex++] = colorMap[colorMapIndex++];
-                        cellCanvasData[pixelIndex++] = colorMap[colorMapIndex++];
-
-                    } else {
-
-                        cellCanvasData[pixelIndex++] = 0;
-                        cellCanvasData[pixelIndex++] = 0;
-                        cellCanvasData[pixelIndex++] = 0;
-                        cellCanvasData[pixelIndex++] = 255;
-
-                    }
-
-                }
-
-                for (;
-                     cell < cellWidth;
-                     cell++) {
-
-                    cellCanvasData[pixelIndex++] = 0;
-                    cellCanvasData[pixelIndex++] = 0;
-                    cellCanvasData[pixelIndex++] = 0;
-                    cellCanvasData[pixelIndex++] = 255;
-
-                }
-
-            }
-
-            var maxHistogram = 0;
             for (var cell = 0;
                  cell < 256;
                  cell++) {
 
-                var value = histogram[cell];
+                var count = histogram[cell];
 
-                if (value > maxHistogram) {
-                    maxHistogram = value;
-                }
+                var isActive = count > cutoff;
 
-            }
+                var isTip =
+                    isActive &&
+                    (count <= cutoffNext);
 
-            var histogramScale =
-               (maxHistogram
-                   ? (histogramGraphHeight / maxHistogram)
-                   : 0);
-            var histogramUsefulHeight = histogramGraphHeight - 1;
+                if (isTip) {
 
-            // Draw histogram.
-            for (var y = 0;
-                 y < histogramGraphHeight;
-                 y++) {
+                    // Draw the tip of a non-zero bucket in white.
 
-                var countWeight = y / histogramUsefulHeight;
-                var countWeightNext = (y + 1) / histogramUsefulHeight;
-                var cutoff = countWeight * maxHistogram;
-                var cutoffNext = countWeightNext * maxHistogram;
+                    histogramCanvasData[pixelIndex++] = 255;
+                    histogramCanvasData[pixelIndex++] = 255;
+                    histogramCanvasData[pixelIndex++] = 255;
+                    histogramCanvasData[pixelIndex++] = 255;
 
-                for (var cell = 0;
-                     cell < cellLimit;
-                     cell++) {
+                } else if (isActive) {
 
-                    var count = histogram[cell];
+                    // Draw the rest of the active part of a
+                    // non-zero bucket in its color.
 
-                    var isActive = count > cutoff;
+                    var colorMapIndex = cell * 4;
 
-                    var isTip =
-                        isActive &&
-                        (count <= cutoffNext);
+                    histogramCanvasData[pixelIndex++] = colorMap[colorMapIndex++];
+                    histogramCanvasData[pixelIndex++] = colorMap[colorMapIndex++];
+                    histogramCanvasData[pixelIndex++] = colorMap[colorMapIndex++];
+                    histogramCanvasData[pixelIndex++] = colorMap[colorMapIndex++];
 
-                    if (isTip) {
+                } else {
 
-                        // Draw the tip of a non-zero bucket in white.
+                    // Draw the inactive part of a bucket in black.
 
-                        cellCanvasData[pixelIndex++] = 255;
-                        cellCanvasData[pixelIndex++] = 255;
-                        cellCanvasData[pixelIndex++] = 255;
-                        cellCanvasData[pixelIndex++] = 255;
-
-                    } else if (isActive) {
-
-                        // Draw the rest of the active part of a
-                        // non-zero bucket in its color.
-
-                        var colorMapIndex = cell * 4;
-
-                        cellCanvasData[pixelIndex++] = colorMap[colorMapIndex++];
-                        cellCanvasData[pixelIndex++] = colorMap[colorMapIndex++];
-                        cellCanvasData[pixelIndex++] = colorMap[colorMapIndex++];
-                        cellCanvasData[pixelIndex++] = colorMap[colorMapIndex++];
-
-                    } else {
-
-                        // Draw the inactive part of a bucket in black.
-
-                        cellCanvasData[pixelIndex++] = 0;
-                        cellCanvasData[pixelIndex++] = 0;
-                        cellCanvasData[pixelIndex++] = 0;
-                        cellCanvasData[pixelIndex++] = 255;
-
-                    }
-
-                }
-
-                for (;
-                     cell < cellWidth;
-                     cell++) {
-
-                    cellCanvasData[pixelIndex++] = 0;
-                    cellCanvasData[pixelIndex++] = 0;
-                    cellCanvasData[pixelIndex++] = 0;
-                    cellCanvasData[pixelIndex++] = 255;
+                    histogramCanvasData[pixelIndex++] = 0;
+                    histogramCanvasData[pixelIndex++] = 0;
+                    histogramCanvasData[pixelIndex++] = 0;
+                    histogramCanvasData[pixelIndex++] = 255;
 
                 }
 
@@ -12419,8 +13488,59 @@ dy = 0;
 
         }
 
-        cellCanvasContext.putImageData(
-            cellCanvasImageData,
+        // Draw the header, pure colors from the colorMap.
+        for (var y = 0;
+             y < histogramHeaderHeight;
+             y++) {
+
+            for (var cell = 0;
+                 cell < 256;
+                 cell++) {
+
+                var colorMapIndex = cell * 4;
+
+                histogramCanvasData[pixelIndex++] = colorMap[colorMapIndex++];
+                histogramCanvasData[pixelIndex++] = colorMap[colorMapIndex++];
+                histogramCanvasData[pixelIndex++] = colorMap[colorMapIndex++];
+                histogramCanvasData[pixelIndex++] = colorMap[colorMapIndex++];
+
+            }
+
+        }
+
+        // Draw the tool cell color.
+        var colorMapIndex = this.toolCell * 4;
+        for (var y = 0;
+             y < histogramToolCellHeight;
+             y++) {
+
+            for (var cell = 0;
+                 cell < 256;
+                 cell++) {
+
+                if ((cell == this.toolCell - 1) ||
+                    (cell == this.toolCell + 1)) {
+
+                    histogramCanvasData[pixelIndex++] = 0;
+                    histogramCanvasData[pixelIndex++] = 0;
+                    histogramCanvasData[pixelIndex++] = 0;
+                    histogramCanvasData[pixelIndex++] = 255;
+
+                } else {
+
+                    histogramCanvasData[pixelIndex++] = colorMap[colorMapIndex + 0];
+                    histogramCanvasData[pixelIndex++] = colorMap[colorMapIndex + 1];
+                    histogramCanvasData[pixelIndex++] = colorMap[colorMapIndex + 2];
+                    histogramCanvasData[pixelIndex++] = colorMap[colorMapIndex + 3];
+
+                }
+
+            }
+
+        }
+
+        histogramCanvasContext.putImageData(
+            histogramCanvasImageData,
             0, 0);
     };
 
@@ -12866,41 +13986,16 @@ dy = 0;
 
         var toolCell = this.toolCell;
 
-        var x = this.mouseX;
-        var y = this.mouseY;
+        // Set the drawing tool cell from the histogram cell
+        // at the cursor x location.
 
-        if ((y >= 0) &&
-            (y < this.cellHeight) &&
-            (x >= 0) &&
-            (x < this.cellWidth)) {
-
-            // If the cursor is in the cells, then set the drawing
-            // tool cell from the cell under the cursor.
-
-            var cells =
-                this.getCells();
-
-            var cellIndex =
-                (x + 1) +
-                ((y + 1) * this.cellBufferWidth);
-
-            toolCell = cells[cellIndex];
-
-            //LOG('applyAnalysis', ['x', x, 'y', y, 'cellIndex', cellIndex, 'cellBufferWidth', this.cellBufferWidth, 'toolCell', toolCell]);
-
-        } else {
-
-            // Set the drawing tool cell from the histogram cell
-            // at the cursor x location.
-
-            var cell = this.mouseX;
-
-            if ((cell >= 0) &&
-                (cell < 256)) {
-                toolCell = cell;
-            }
-
-        }
+        toolCell = 
+            Math.max(
+                0,
+                Math.min(
+                    255,
+                    Math.floor(
+                        this.histogramMouseX)));
 
         // If the tool cell changed, then update the parameter.
         if (toolCell != this.toolCell) {
@@ -13450,7 +14545,7 @@ dy = 0;
 
         var functionText =
             resultStrings.join('');
-        LOG('functionText', '\n\n' + functionText + '\n');
+        //LOG('functionText', '\n\n' + functionText + '\n');
 
         // Must put parens around the function to get eval to return
         // it, otherwise it's a statement that doesn't return a value,
@@ -13526,11 +14621,11 @@ dy = 0;
                         var condition = true;
                         var test = el.getAttribute('test') || null;
 
-                        LOG('SLOT', slotName, test, el);
+                        //LOG('SLOT', slotName, test, el);
                         if (test) {
                             try {
                                 condition = evalInContexts.call(this, test);
-                                LOG('SUCCESS', 'condition', condition);
+                                //LOG('SUCCESS', 'condition', condition);
                                 error = null;
                             } catch (e) {
                                 error = e;

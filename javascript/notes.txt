@@ -1,0 +1,285 @@
+Converting to TypeScript:
+
+Replace the ad-hoc JavaScript type definition system.
+
+Types required:
+
+//     paramMetaData:
+//
+//         Metadata about each of the parameter values that the user
+//         can change to configure the simulation, drawing tool, rules,
+//         etc. Changes to these values can be recorded and played
+//         back in scripts, and user interfaces for editing the
+//         values are automatically generated, and updated when
+//         the corresponding values change. The metadata contains
+//         functions to return human readable values and descriptions,
+//         and convert back and forth between the parameter
+//         representation and the user interface widget representation.
+//
+//     neighborhood:
+//
+//         A neighbordhood originally corresponded to one of the hardware
+//         cellular automata neighborhoods built into the CAM6. But it has
+//         been generalized and extended to be a parameterizable technique
+//         for iterating over the cells and transforming the previous
+//         state to the new state.
+//
+//         Neighborhoods can be programmed to directly compute one
+//         particular cellular automata rule (like 'Life', in which case
+//         there will be one or few corresponding rules that use it), or
+//         they may be more parameterizable and general purpose, like a
+//         look-up table (in which case there may be many different
+//         rules that use it.)
+//
+//         There are several lookup-table based neighborhoods that
+//         emulate the original CAM6 neighborhoods (Moore, VonNeumann,
+//         Margolus), and other neighborhoods that compute their rules
+//         directly (Marble, Life, Brain).
+//
+//     rule:
+//
+//         A rule uses and paramterizes one particular neighborhood.
+//         Rules are tightly coupled with their neighborhoods (although
+//         it's possible to define different compatible neighborhoods
+//         configured by the same rules, but currently each rule is bound
+//         to exacty one neighborhood). The rules can parameterize the
+//         neighborhood in many different ways. The set of possible parameters
+//         depend on the neighborhood, but some are standardized across
+//         neighborhoods when they make sense.
+//
+//         Even Neighboods that don't have any parameters must have at
+//         least one rule, otherwise they won't show up in the user
+//         interface as a rule with a name, description, etc.
+//
+//         Some neighborhood parameters are statically configured by the
+//         rule, and others can be dynamically configured by the user at
+//         run-time during the simulation, via the user interface.
+//
+//         Neighborhoods can also combine more than one kind of cellular
+//         automata rule or image processing effect in parallel, which may
+//         be enabled/disabled and configured by parameters in the rules
+//         that use the neighborhood. For example, many of the
+//         neighborhoods that don't use all eight bits of the cell also
+//         have the options of using those bits for "Echo" (which shifts
+//         the old lower bit values of the cell up into the higher bits,
+//         to create a colorful trail), or "Heat" (which runs a heat
+//         diffusion simulation in the upper bits of the cell, and allows
+//         the cell value to bleed into the lower bits of the heat
+//         diffusion simulation, so "heat pollution" can spread from the
+//         cells, and the cellular automata and heat diffusion may
+//         interact with each other).
+//
+//     colorMap:
+//
+//         Eight bit RGBA color maps with 256 entries for displaying
+//         the 8 bit cell values.
+//
+//     tool:
+//
+//         Editing tools for drawing in the cells.
+//
+//     analyzer:
+//
+//         Cell and video analyzers, for webcam head tracking, etc.
+//
+//     command:
+//
+//         Commands triggered by pressing buttons, and recorded and
+//         played back in scripts.
+//
+//     hint:
+//
+//         Usage hints shown to help users.
+//
+//     chapter:
+//
+//         Chapters of the dynamically generated documentation.
+//
+//     compositionFunction:
+//
+//         Functions for composing a 32 bit RGBA canvas graphics into
+//         the 8 bit cells. Makes it possible to apply the canvas 2d
+//         drawing api into the cells, or render images, HTML, SVG,
+//         WebGL graphics, etc, into the cells.
+//
+//     image:
+//
+//         Images for use in the user interface.
+//
+//     lineCap:
+//
+//         An enumerated type of line caps, used by some of the
+//         drawing tools.
+//
+//     playMode:
+//
+//         An enumerated type of script playback modes.
+//
+//     recordMode:
+//
+//         An enumerated type of script recording modes.
+//
+
+Classes:
+
+paramMetaData
+neighborhood
+rule
+colormap
+tool
+analyzer
+command
+hint
+chapter
+compositionFunction
+image
+lineCap
+playMode
+recordMode
+tab
+
+====
+
+Utilities:
+
+curveWidgetValueToParamValue
+uncurveParamValueToWidgetValue
+paramUsedByCurrentTool
+paramUsedByCurrentRule
+ruleUtil_*
+ruleFunction_*
+initColorMap
+updateColorMap
+handleIndexGetFunction_colorMap_random
+handleIndexGetFunction_colorMap_default
+
+====
+
+Parameters:
+
+camParams
+toolParams
+ruleParams
+compositionParams
+defaultColors
+defaultSpecialColors
+kernels
+
+====
+
+Methods:
+
+init
+startup
+startupLoadImages
+startupFinish
+initFromParams
+setValue
+scriptRecordStart
+ScriptRecordStop
+scriptPlayStart
+scriptPlayStop
+playScript
+playScriptDict
+playParams
+playCells
+playCommand
+recordCommand
+recordParams
+recordCells
+scriptSave
+scriptLoad
+enableWebCam
+disableWebCam
+updateWebCam
+enableAnalyzer
+disableAnalyzer
+enbleHeadTracker
+disableHeadTracker
+updateHeadTracker
+updateCommands
+initCanvas
+scaneCanvasToWindow
+scaleCanvas
+trackCellCanvasWheel
+TrackCellCanvasDown
+trackCellCanvasDrag
+trackCellCanvasMove
+trackCellCanvasMoveSub
+trackCellCanvasUp
+initHistogram
+scaleHistogram
+trackHistogramCanvasWheel
+trackHistogramCanvasDown
+trackHistogramCanvasDrag
+trackHistogramCanvasMove
+trackHistogramCanvasMoveSub
+trackHistogramCanvasUp
+glInit
+glScaleCanvas
+glRender
+makeGUI
+makeTabsGUI
+makeCommandsGUI
+makeParamsGUI
+makeHintsGUI
+makeWikiGUI
+makePieGUI
+updateParamVisibility
+getColorMap
+makeCells
+setCells
+getCellData
+makeHistogram
+fullScreenMode
+windowMode
+pause
+resume
+scheduleTick
+tick
+nextPhaseTime
+getCells
+getNextCells
+applyAnalyzers
+updateParams
+renderCells
+renderHistogram
+randomizeCells
+initCells
+clearCells
+initializeCells
+initializeCellsTemplate
+setCellsValue
+wrapCells
+newRandomSeed
+initActiveTool
+addActiveTool
+removeActiveTool
+trackHistogram
+applyTools
+playTool
+compositionOverlayToCells
+clearCompositionOverlay
+clearFeedbackOverlay
+recordTool
+recordToolBegin
+recordToolEnd
+wraplicateTool
+compileRule
+compileNeighborhoodFunction
+compileTemplate
+expandTemplate
+replaceTemplateVariables
+applyRule
+
+====
+
+Remove or replace:
+
+logging
+JSONtoDOM
+evalInContextsFunction
+groupPieItemsIntoSlices
+defineType
+
+===

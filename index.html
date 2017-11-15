@@ -17,6 +17,7 @@
     <script type="text/javascript" src="jquery-mousewheel/jquery.mousewheel.js"></script>
     <script type="text/javascript" src="headtrackr/headtrackr.js"></script>
     <script type="text/javascript" src="seedrandom/seedrandom.js"></script>
+    <script type="text/javascript" src="javascript/twgl-full.js"></script>
     <script type="text/javascript" src="javascript/CAM6.js"></script>
     <script>
 
@@ -26,6 +27,7 @@
             });
 
             window.cam6.startup();
+
         });
 
     </script>
@@ -34,24 +36,65 @@
 
   <body class="cam6-body">
 
-<!--
-    <center>
+    <script id="tileVertexShader" type="x-shader/x-vertex">
 
-      <div class="cam6-header">
-        Cellular Automata Machine (CAM6), by
-        <a href="mailto:dhopkins@donhopkins.com">Don Hopkins<a>.
-        <br/>
-        <a
-          href="http://www.donhopkins.com/mediawiki/index.php/CAM6_Simulator"
-          target="_new"
-        >I'm writing more info and documentation about this on my wiki!</a>
-      </div>
+        precision mediump float;
 
-      <hr/>
+        attribute vec3 a_position;
+        attribute vec2 a_screenTile;
+        varying vec2 v_screenTile;
 
-    </center>
+        void main() {
 
--->
+            gl_Position = vec4(a_position, 1.0);
+            v_screenTile = a_screenTile;
+
+        }
+
+    </script>
+
+    <script id="tileFragmentShader" type="x-shader/x-fragment">
+
+        precision mediump float;
+
+        uniform vec2 u_tileSize;
+        uniform vec2 u_tilesSize;
+        uniform sampler2D u_tiles;
+        uniform vec2 u_cellsSize;
+        uniform sampler2D u_cells;
+        uniform int u_cellGutter;
+        varying vec2 v_screenTile;
+
+        void main() {
+
+            // Calculate the screen tile coordinate.
+            vec2 screenTileColRow = floor(v_screenTile);
+            vec2 screenTilePosition = v_screenTile - screenTileColRow;
+
+            // Map the screen tile coordinate to a cell, taking the gutter into consideration.
+            vec2 cellGutters = vec2(u_cellGutter, u_cellGutter);
+            vec2 cellsSizeInside = u_cellsSize - (2.0 * cellGutters);
+            vec2 cellColRow = mod(screenTileColRow, cellsSizeInside) + cellGutters;
+            vec2 cellUV = cellColRow / u_cellsSize;
+
+            // Read the cell value.
+            float cell = floor(texture2D(u_cells, cellUV).a * 255.0);
+
+            // Calculate the tile row and column from the cell value.
+            float tileRow = floor(cell * u_tileSize.x / u_tilesSize.x);
+            float tileCol = cell - (tileRow * u_tileSize.y / u_tilesSize.y);
+
+            // Calculate which pixel of the tile to sample.
+            vec2 tileCorner = vec2(tileCol, tileRow) * u_tileSize;
+            vec2 tilePixel = tileCorner + (screenTilePosition * u_tileSize);
+            vec2 uv = tilePixel / u_tilesSize;
+
+            // Sample the tile.
+            gl_FragColor = texture2D(u_tiles, uv);
+
+        }
+
+    </script>
 
   </body>
 
