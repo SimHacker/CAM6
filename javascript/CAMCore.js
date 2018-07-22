@@ -462,6 +462,30 @@
     }
 
 
+	function proxy(fn, context) {
+		var args, proxy, tmp;
+
+		if (typeof context === "string") {
+			tmp = fn[context];
+			context = fn;
+			fn = tmp;
+		}
+
+		// Quick check to determine if target is callable, in the spec
+		// this throws a TypeError, but we will just return undefined.
+		if (typeof(fn) !== "function") {
+			return undefined;
+		}
+
+		// Simulated bind
+		args = Array.prototype.slice.call(arguments, 2);
+		proxy = function() {
+			return fn.apply( context || this, args.concat(Array.prototype.slice.call(arguments)));
+		};
+
+		return proxy;
+	}
+
     function seedRandom(seed) {
         Math.seedrandom(seed);
     }
@@ -1032,8 +1056,6 @@
                 tab: 'tools',
                 setValueFunction: function setValueFunction(paramMetaData, target, paramKey, paramValue, previousParamValue) {
                     target[paramKey] = paramValue;
-                    // Changing the tool can change the visible parameters, so call updateParamVisibility.
-                    this.updateParamVisibility();
                 },
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return this.tool_by_symbol[paramValue].name;
@@ -1304,8 +1326,6 @@
                 tab: 'rules',
                 setValueFunction: function setValueFunction(paramMetaData, target, paramKey, paramValue, previousParamValue) {
                     target[paramKey] = paramValue;
-                    // Changing the tool can change the visible parameters, so call updateParamVisibility.
-                    this.updateParamVisibility();
                 },
                 getValueNameFunction: function getValueNameFunction(paramMetaData, target, paramValue) {
                     return this.rule_by_symbol[paramValue].name;
@@ -8253,7 +8273,7 @@ dy = 0;
                 .appendTo(this.$cellCanvasContainer);
 
         this.$histogramCanvasContainer =
-            $('<canvas/>')
+            $('<div/>')
                 .addClass('cam6-histogramCanvasContainer')
                 .appendTo(this.$root);
 
@@ -9622,7 +9642,6 @@ dy = 0;
         this.updateParams();
         this.renderCells();
         this.renderHistogram();
-        this.glRender();
         this.scheduleTick();
 
     };
