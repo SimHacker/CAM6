@@ -487,11 +487,13 @@
 	}
 
     function seedRandom(seed) {
-        Math.seedrandom(seed);
+        // TODO: use seeded random number generator.
+        //Math.seedrandom(seed);
     }
 
 
     function getRandom() {
+        // TODO: use seeded random number generator.
         return Math.random();
     }
 
@@ -8350,8 +8352,8 @@ dy = 0;
         this.initHistogram();
         this.randomizeCells();
 
-        //this.paused = false;
-        //this.scheduleTick();
+        this.paused = false;
+        this.scheduleTick();
     };
 
 
