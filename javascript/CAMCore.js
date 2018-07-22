@@ -8123,23 +8123,22 @@ dy = 0;
         this.params = {};
 
         // jQuery DOM objects.
-        this.$document = null;
-        this.$root = null;
-        this.$cellCanvasContainer = null;
-        this.$cellCanvas = null;
-        this.$compositionOverlay = null;
-        this.$feedbackOverlay = null;
-        this.$histogramCanvasContainer = null;
-        this.$histogramCanvas = null;
+        this.root = null;
+        this.cellCanvasContainer = null;
+        this.cellCanvas = null;
+        this.compositionOverlay = null;
+        this.feedbackOverlay = null;
+        this.histogramCanvasContainer = null;
+        this.histogramCanvas = null;
 
-        this.cellWidth = 256;
-        this.cellHeight = 256;
+        this.cellWidth = 480;
+        this.cellHeight = 360;
         this.cellGutter = 1;
         this.tileScale = 16;
-        this.cellCanvasScale = 2;
-        this.histogramCanvasScale = 2;
+        this.cellCanvasScale = 1;
+        this.histogramCanvasScale = 1;
         this.doCellCanvas = true;
-        this.doHistogram = true;
+        this.doHistogram = false;
         this.histogramToolCellHeight = 5;
         this.histogramHeaderHeight = 5;
         this.histogramGraphHeight = 30;
@@ -8175,7 +8174,7 @@ dy = 0;
         this.heatShiftPollution = 2;
         this.colorMapSymbol = 'default';
         this.stepsPerFrame = 1;
-        this.animationDelay = 1;
+        this.animationDelay = 100;
         this.playSpeed = 1;
         this.playModeSymbol = 'forwardStop';
         this.recordModeSymbol = 'scriptParameterChangesCommandsTools';
@@ -8247,48 +8246,38 @@ dy = 0;
     // makegGUI makes the user interface for editing the parameters.
     CAMCore.prototype.makeGUI = function makeGUI() {
 
-console.log("makeGUI");
-        this.$document =
-            $(document);
+        this.root = document.createElement('div');
+        document.body.appendChild(this.root);
 
-        this.$root =
-            $('<div/>')
-                //.hide()
-                .appendTo($(document.body));
-console.log("root", this.$root);
+        this.cellCanvasContainer = document.createElement('div');
+        this.cellCanvasContainer.className = 'cam6-cellCanvasContainer';
+        this.root.appendChild(this.cellCanvasContainer);
 
-        this.$cellCanvasContainer =
-            $('<div/>')
-                .addClass('cam6-cellCanvasContainer')
-                .appendTo(this.$root);
-console.log("cellCanvasContainer", this.$cellCanvasContainer);
+        this.cellCanvas = document.createElement('canvas');
+        this.cellCanvas.className = 'cam6-cellCanvas';
+        this.cellCanvasContainer.appendChild(this.cellCanvas);
+        this.cellCanvasContext = this.cellCanvas.getContext('2d');
 
-        this.$cellCanvas =
-            $('<canvas/>')
-                .addClass('cam6-cellCanvas')
-                .appendTo(this.$cellCanvasContainer);
-console.log("cellCanvas", this.$cellCanvas);
+        this.compositionOverlay = document.createElement('canvas');
+        this.compositionOverlay.className = 'cam6-compositionOverlay';
+        this.cellCanvasContainer.appendChild(this.compositionOverlay);
+        this.compositionOverlayContext = this.compositionOverlay.getContext('2d');
 
-        this.$compositionOverlay =
-            $('<canvas/>')
-                .addClass('cam6-compositionOverlay')
-                .appendTo(this.$cellCanvasContainer);
+        this.feedbackOverlay = document.createElement('canvas');
+        this.feedbackOverlay.className = 'cam6-feedbackOverlay';
+        this.cellCanvasContainer.appendChild(this.feedbackOverlay);
+        this.feedbackOverlayContext = this.feedbackOverlay.getContext('2d');
 
-        this.$feedbackOverlay =
-            $('<canvas/>')
-                .addClass('cam6-feedbackOverlay')
-                .appendTo(this.$cellCanvasContainer);
+        this.histogramCanvasContainer = document.createElement('div');
+        this.histogramCanvasContainer.className = 'cam6-histogramCanvasContainer';
+        this.root.appendChild(this.histogramCanvasContainer);
 
-        this.$histogramCanvasContainer =
-            $('<div/>')
-                .addClass('cam6-histogramCanvasContainer')
-                .appendTo(this.$root);
+        this.histogramCanvas = document.createElement('canvas');
+        this.histogramCanvas.className = 'cam6-histogramCanvas';
+        this.histogramCanvasContainer.appendChild(this.histogramCanvas);
+        this.histogramCanvasContext = this.histogramCanvas.getContext('2d');
 
-        this.$histogramCanvas =
-            $('<canvas/>')
-                .addClass('cam6-histogramCanvas')
-                .appendTo(this.$histogramCanvasContainer);
-
+        this.show();
     };
 
     // initFromParams initializes the simulator engine from the parameters
@@ -8418,6 +8407,36 @@ console.log("cellCanvas", this.$cellCanvas);
 
         }
 
+    };
+
+
+    // run entry point
+    CAMCore.prototype.run = function run(command, parameters) {
+        console.log("CAMCore.js: CAMCore: run: command:", command, "parameters:", parameters, typeof(parameters), "0", parameters[0], typeof(parameters[0]));
+
+        var result = true;
+        switch (command) {
+            case "setPaused":
+                if (parameters) {
+console.log("pause");
+                    this.pause();
+                } else {
+console.log("resume");
+                    this.resume();
+                }
+                break;
+            case "setHidden":
+                if (parameters) {
+console.log("hide");
+                    this.hide();
+                } else {
+console.log("show");
+                    this.show();
+                }
+                break;
+        }
+
+        return result;
     };
 
 
@@ -8973,9 +8992,6 @@ console.log("cellCanvas", this.$cellCanvas);
 
         this.scaleCanvas();
 
-        this.cellCanvasContext =
-            this.$cellCanvas[0].getContext('2d');
-
         this.cellCanvasImageData =
             this.cellCanvasContext.createImageData(
                 this.cellWidth,
@@ -8986,19 +9002,15 @@ console.log("cellCanvas", this.$cellCanvas);
 
         if (this.useGUI) {
 
-            this.$cellCanvas
+/*
+            this.cellCanvas
                 .on('mousedown.cells',
                     proxy(this.trackCellCanvasDown, this))
                 .on('mousemove.cells',
                     proxy(this.trackCellCanvasMove, this))
                 .on('mousewheel.cells',
                     proxy(this.trackCellCanvasWheel, this));
-
-            this.compositionOverlayContext =
-                this.$compositionOverlay[0].getContext('2d');
-
-            this.feedbackOverlayContext =
-                this.$feedbackOverlay[0].getContext('2d');
+*/
 
         }
 
@@ -9028,41 +9040,23 @@ console.log("cellCanvas", this.$cellCanvas);
         var width = this.cellWidth * this.cellCanvasScale;
         var height = this.cellHeight * this.cellCanvasScale;
 
-        this.$cellCanvasContainer
-            .css({
-                width: width + 'px',
-                height: height + 'px'
-            });
+        var sizeStyle = 'width: ' + width + 'px; height: ' + height + 'px; ';
+        var relativeStyle = 'position: relative; ';
+        var absoluteStyle = 'position: absolute; ';
 
-        this.$cellCanvas
-            .attr({
-                width: this.cellWidth,
-                height: this.cellHeight
-            })
-            .css({
-                width: width + 'px',
-                height: height + 'px'
-            });
+        this.cellCanvasContainer.style = sizeStyle + relativeStyle;
 
-        this.$compositionOverlay
-            .attr({
-                width: this.cellWidth,
-                height: this.cellHeight
-            })
-            .css({
-                width: width + 'px',
-                height: height + 'px'
-            });
+        this.cellCanvas.style = sizeStyle + absoluteStyle;
+        this.cellCanvas.width = this.cellWidth;
+        this.cellCanvas.height = this.cellHeight;
 
-        this.$feedbackOverlay
-            .attr({
-                width: this.cellWidth,
-                height: this.cellHeight
-            })
-            .css({
-                width: width + 'px',
-                height: height + 'px'
-            });
+        this.compositionOverlay.style = sizeStyle + absoluteStyle;
+        this.compositionOverlay.width = this.cellWidth;
+        this.compositionOverlay.height = this.cellHeight;
+
+        this.feedbackOverlay.style = sizeStyle + absoluteStyle;
+        this.feedbackOverlay.width = this.cellWidth;
+        this.feedbackOverlay.height = this.cellHeight;
 
     };
 
@@ -9149,14 +9143,16 @@ console.log("cellCanvas", this.$cellCanvas);
         this.trackingCells = true;
         this.trackingCellsActiveToolDict = activeToolDict;
 
-        this.$cellCanvas
+/*
+        this.cellCanvas
             .off('mousemove.cells');
 
-        this.$document
+        document
             .on('mousemove.cells',
                 proxy(this.trackCellCanvasDrag, this))
             .on('mouseup.cells',
                 proxy(this.trackCellCanvasUp, this));
+*/
 
         //LOG("trackCellCanvasDown started tracking", this, activeToolDict);
 
@@ -9200,14 +9196,13 @@ console.log("cellCanvas", this.$cellCanvas);
     // trackCellCanvasMoveSub tracks a mouse move event.
     CAMCore.prototype.trackCellCanvasMoveSub = function trackCellCanvasMoveSub(event) {
 
-        var offset = this.$cellCanvas.offset();
-        var x = event.pageX - offset.left;
-        var y = event.pageY - offset.top;
+        var x = event.pageX - this.cellCanvas.offsetLeft;
+        var y = event.pageY - this.cellCanvas.offsetTop;
 
         this.setValue(this, 'mouseX', Math.floor(x / this.cellCanvasScale));
         this.setValue(this, 'mouseY', Math.floor(y / this.cellCanvasScale));
 
-        //console.log("trackCellCanvasMoveSub", "mouse", this.mouseX, this.mouseY, "offset", offset, offset.left, offset.top, "x", x, "y", y, "event", event, "$cellCanvas", this.$cellCanvas, this.$cellCanvas[0]);
+        //console.log("trackCellCanvasMoveSub", "mouse", this.mouseX, this.mouseY, "offset", offset, offset.left, offset.top, "x", x, "y", y, "event", event, "cellCanvas", this.cellCanvas);
 
     };
 
@@ -9251,13 +9246,15 @@ console.log("cellCanvas", this.$cellCanvas);
         this.clearCompositionOverlay();
         this.clearFeedbackOverlay();
 
-        this.$document
+/*
+        document
             .off('mousemove.cells')
             .off('mouseup.cells');
 
-        this.$cellCanvas
+        this.cellCanvas
             .on('mousemove.cells')
                 proxy(this.trackCellCanvasMove, this);
+*/
 
         if (this.paused) {
             this.tick();
@@ -9277,9 +9274,6 @@ console.log("cellCanvas", this.$cellCanvas);
 
         this.scaleHistogram();
 
-        this.histogramCanvasContext =
-            this.$histogramCanvas[0].getContext('2d');
-
         this.histogramCanvasImageData =
             this.histogramCanvasContext.createImageData(
                 this.histogramCanvasWidth,
@@ -9290,11 +9284,13 @@ console.log("cellCanvas", this.$cellCanvas);
 
         if (this.useGUI) {
 
-            this.$histogramCanvas
+/*
+            this.histogramCanvas
                 .on('mousedown.histogram',
                     proxy(this.trackHistogramCanvasDown, this))
                 .on('mousewheel.histogram',
                     proxy(this.trackHistogramCanvasWheel, this));
+*/
 
         }
 
@@ -9306,27 +9302,14 @@ console.log("cellCanvas", this.$cellCanvas);
         var width = this.histogramCanvasWidth * this.histogramCanvasScale;
         var height = this.histogramCanvasHeight * this.histogramCanvasScale;
 
-        this.$histogramCanvasContainer
-            .css({
-                width: width + 'px',
-                height: height + 'px'
-            });
+        var sizeStyle = 'width: ' + width + 'px; height: ' + height + 'px; ';
+        var showStyle = this.doHistogram ? 'display: block; ' : 'display: none; ';
 
-        this.$histogramCanvas
-            .attr({
-                width: this.histogramCanvasWidth,
-                height: this.histogramCanvasHeight
-            })
-            .css({
-                width: width + 'px',
-                height: height + 'px'
-            });
+        this.histogramCanvasContainer.style = sizeStyle + showStyle;
 
-        if (this.doHistogram) {
-            this.$histogramCanvasContainer.show();
-        } else {
-            this.$histogramCanvasContainer.hide();
-        }
+        this.histogramCanvas.style = sizeStyle;
+        this.histogramCanvas.width = this.histogramCanvasWidth;
+        this.histogramCanvas.height = this.histogramCanvasHeight;
 
     };
 
@@ -9358,11 +9341,13 @@ console.log("cellCanvas", this.$cellCanvas);
         this.trackingHistogram = true;
         this.trackingCellsActiveToolDict = null;
 
-        this.$document
+/*
+        document
             .on('mousemove.histogram',
                 proxy(this.trackHistogramCanvasDrag, this))
             .on('mouseup.histogram',
                 proxy(this.trackHistogramCanvasUp, this));
+*/
 
         if (this.paused) {
             this.tick();
@@ -9404,9 +9389,8 @@ console.log("cellCanvas", this.$cellCanvas);
     // trackHistogramCanvasMoveSub tracks a mouse move event.
     CAMCore.prototype.trackHistogramCanvasMoveSub = function trackHistogramCanvasMoveSub(event) {
 
-        var offset = this.$histogramCanvas.offset();
-        var x = event.pageX - offset.left;
-        var y = event.pageY - offset.top;
+        var x = event.pageX - this.histogramCanvas.offsetLeft;
+        var y = event.pageY - this.histogramCanvas.offsetTop;
 
         this.setValue(this, 'histogramMouseX', Math.floor(x / this.histogramCanvasScale));
         this.setValue(this, 'histogramMouseY', Math.floor(y / this.histogramCanvasScale));
@@ -9428,9 +9412,11 @@ console.log("cellCanvas", this.$cellCanvas);
 
         this.trackingHistogram = false;
 
-        this.$document
+/*
+        document
             .off('mousemove.histogram')
             .off('mouseup.histogram');
+*/
 
         if (this.paused) {
             this.tick();
@@ -9588,6 +9574,18 @@ console.log("cellCanvas", this.$cellCanvas);
     };
 
 
+    // show shows the root.
+    CAMCore.prototype.show = function pause() {
+        this.root.style = 'opacity: 0.5; z-index: 1000; position: absolute; right: 0px; top: 32px; display: block; ';
+    };
+
+
+    // hide hides the root.
+    CAMCore.prototype.hide = function pause() {
+        this.root.style = 'display: none; ';
+    };
+
+
     // pause pauses the simulation.
     CAMCore.prototype.pause = function pause() {
 
@@ -9598,8 +9596,6 @@ console.log("cellCanvas", this.$cellCanvas);
         }
 
         this.paused = true;
-
-        this.updateCommands();
     };
 
 
@@ -9613,8 +9609,6 @@ console.log("cellCanvas", this.$cellCanvas);
         this.paused = false;
 
         this.scheduleTick();
-
-        this.updateCommands();
     };
 
 
@@ -10756,7 +10750,8 @@ console.log("cellCanvas", this.$cellCanvas);
             var xml = output.join('');
 
             //LOG('Parsing XML text:', xml);
-            var doc = $.parseXML(xml);
+            var parser = new DOMParser();
+            var doc = parser.parseFromString(xml, "text/xml");
             //LOG('Got XML document:', doc);
 
             neighborhoodFunctionTemplate = doc && doc.firstChild;
@@ -10863,7 +10858,8 @@ console.log("cellCanvas", this.$cellCanvas);
         var xml = output.join('');
 
         //LOG('Parsing XML text:', xml);
-        var doc = $.parseXML(xml);
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(xml, "text/xml");
         //LOG('Got XML document:', doc);
 
         var templateElement = doc && doc.firstChild;
