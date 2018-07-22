@@ -8245,22 +8245,27 @@ dy = 0;
     // makegGUI makes the user interface for editing the parameters.
     CAMCore.prototype.makeGUI = function makeGUI() {
 
+console.log("makeGUI");
         this.$document =
             $(document);
 
         this.$root =
             $('<div/>')
+                //.hide()
                 .appendTo($(document.body));
+console.log("root", this.$root);
 
         this.$cellCanvasContainer =
             $('<div/>')
                 .addClass('cam6-cellCanvasContainer')
                 .appendTo(this.$root);
+console.log("cellCanvasContainer", this.$cellCanvasContainer);
 
         this.$cellCanvas =
             $('<canvas/>')
                 .addClass('cam6-cellCanvas')
                 .appendTo(this.$cellCanvasContainer);
+console.log("cellCanvas", this.$cellCanvas);
 
         this.$compositionOverlay =
             $('<canvas/>')
@@ -8350,8 +8355,9 @@ dy = 0;
         this.initHistogram();
         this.randomizeCells();
 
-        //this.paused = false;
-        //this.scheduleTick();
+        if (!this.paused) {
+            this.scheduleTick();
+        }
     };
 
 

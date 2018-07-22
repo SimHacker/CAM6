@@ -1,32 +1,22 @@
 <html>
   <head>
     <title>CAMCore</title>
-	<link rel="stylesheet" type="text/css" href="jquery-pie/jquery-ui/themes/base/jquery.ui.all.css">
-    <link rel="stylesheet" type="text/css" href="jquery-pie/css/jquery-pie.css"/>
 	<link rel="stylesheet" type="text/css" href="css/CAM6.css">
     <script type="text/javascript" src="jquery-pie/jquery-ui/jquery-1.10.2.js"></script>
 	<script type="text/javascript" src="jquery-pie/jquery-ui/ui/jquery.ui.core.js"></script>
 	<script type="text/javascript" src="jquery-pie/jquery-ui/ui/jquery.ui.widget.js"></script>
 	<script type="text/javascript" src="jquery-pie/jquery-ui/ui/jquery.ui.mouse.js"></script>
-	<script type="text/javascript" src="jquery-pie/jquery-ui/ui/jquery.ui.slider.js"></script>
-	<script type="text/javascript" src="jquery-pie/jquery-ui/ui/jquery.ui.button.js"></script>
-	<script type="text/javascript" src="jquery-pie/jquery-ui/ui/jquery.ui.draggable.js"></script>
-	<script type="text/javascript" src="jquery-pie/jquery-ui/ui/jquery.ui.resizable.js"></script>
-	<script type="text/javascript" src="jquery-pie/jquery-ui/ui/jquery.ui.dialog.js"></script>
-    <script type="text/javascript" src="jquery-pie/javascript/jquery-pie.js"></script>
     <script type="text/javascript" src="jquery-mousewheel/jquery.mousewheel.js"></script>
-    <script type="text/javascript" src="headtrackr/headtrackr.js"></script>
-    <script type="text/javascript" src="seedrandom/seedrandom.js"></script>
-    <script type="text/javascript" src="javascript/twgl-full.js"></script>
     <script type="text/javascript" src="javascript/CAMCore.js"></script>
     <script>
 
         $(function() {
 
-            window.cam = new CAMCore({
+            window.camCore = new CAMCore({
             });
 
-            window.cam.startup();
+            window.camCore.paused = false;
+            window.camCore.startup();
 
         });
 
