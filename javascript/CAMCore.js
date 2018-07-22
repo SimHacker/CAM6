@@ -8284,19 +8284,6 @@ dy = 0;
 
     };
 
-    CAMCore.prototype.startupFinish = function startupFinish() {
-    
-        this.makeCells();
-        this.makeHistogram();
-        this.initCanvas();
-        this.initHistogram();
-        this.randomizeCells();
-
-        this.paused = false;
-        this.scheduleTick();
-    };
-
-
     // initFromParams initializes the simulator engine from the parameters
     // dictionary.
     CAMCore.prototype.initFromParams = function initFromParams() {
@@ -8352,6 +8339,19 @@ dy = 0;
         this.setValue(this, 'randomSeed', params.randomSeed || this.randomSeed);
         this.setValue(this, 'phaseTime', params.phaseTime || this.phaseTime);
 
+    };
+
+
+    CAMCore.prototype.startupFinish = function startupFinish() {
+    
+        this.makeCells();
+        this.makeHistogram();
+        this.initCanvas();
+        this.initHistogram();
+        this.randomizeCells();
+
+        //this.paused = false;
+        //this.scheduleTick();
     };
 
 
