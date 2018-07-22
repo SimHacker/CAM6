@@ -487,11 +487,13 @@
 	}
 
     function seedRandom(seed) {
-        Math.seedrandom(seed);
+        // TODO: use seeded random number generator.
+        //Math.seedrandom(seed);
     }
 
 
     function getRandom() {
+        // TODO: use seeded random number generator.
         return Math.random();
     }
 
