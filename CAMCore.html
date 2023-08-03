@@ -1,0 +1,31 @@
+<html>
+  <head>
+    <title>CAMCore</title>
+	<link rel="stylesheet" type="text/css" href="css/CAM6.css">
+    <script type="text/javascript" src="jquery-pie/jquery-ui/jquery-1.10.2.js"></script>
+	<script type="text/javascript" src="jquery-pie/jquery-ui/ui/jquery.ui.core.js"></script>
+	<script type="text/javascript" src="jquery-pie/jquery-ui/ui/jquery.ui.widget.js"></script>
+	<script type="text/javascript" src="jquery-pie/jquery-ui/ui/jquery.ui.mouse.js"></script>
+    <script type="text/javascript" src="jquery-mousewheel/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="javascript/CAMCore.js"></script>
+    <script>
+
+        $(function() {
+
+            window.camCore = new CAMCore({
+            });
+
+            window.camCore.paused = false;
+            window.camCore.startup();
+
+        });
+
+    </script>
+
+  </head>
+
+  <body>
+
+  </body>
+
+</html>
