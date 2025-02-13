@@ -275,7 +275,7 @@
 //   two cells wider and taller, and wrapping edges around to the
 //   extra edge cells before applying rule, so the inner loop does not
 //   have to check for edge conditions to wrap the cells, and other
-//   edge treatmens can be applied besides wrapping, like clamping or
+//   edge treatments can be applied besides wrapping, like clamping or
 //   reflecting.
 //
 //   Index table lookup based rules, that allow you to define rules in
