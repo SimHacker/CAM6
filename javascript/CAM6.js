@@ -155,14 +155,14 @@
 //
 //         A neighbordhood originally corresponded to one of the hardware
 //         cellular automata neighborhoods built into the CAM6. But it has
-//         been generalized and extended to be a parameterizable technique
+//         been generalized and extended to be a parametrizable technique
 //         for iterating over the cells and transforming the previous
 //         state to the new state.
 //
 //         Neighborhoods can be programmed to directly compute one
 //         particular cellular automata rule (like 'Life', in which case
 //         there will be one or few corresponding rules that use it), or
-//         they may be more parameterizable and general purpose, like a
+//         they may be more parametrizable and general purpose, like a
 //         look-up table (in which case there may be many different
 //         rules that use it.)
 //
@@ -300,7 +300,7 @@
 //   custom code into the inner loop, disable unnecessary code,
 //   calculate parameters, inline constants, etc. This enables
 //   neighborhoods to be much more general purpose, and not only
-//   deeply parameterizable but also arbitrarily extensible,
+//   deeply parametrizable but also arbitrarily extensible,
 //   supporting complex rule definition, as well as real time analysis
 //   and event reporting (like the cell value histogram). And it also
 //   enabled users to play around with writing their own rules and
