@@ -284,7 +284,7 @@
 //   lookup table that is used by the neighborhood to evaluate the
 //   rule without running a lot of JavaScript code. This is how the
 //   CAM6 hardware works, and the rule tables are compatible with its
-//   rule tables. The hardware concatinates the bits of the neighbors
+//   rule tables. The hardware concatenates the bits of the neighbors
 //   into an index that is used to look up the next cell value in the
 //   lookup table. It's not clear if this is actually any faster in
 //   software, because it's a software emulation of a hardware
@@ -424,7 +424,7 @@
 
     // _log is the core of the logging function, which in chrome prints
     // its arguments out as objects you can click on and browse, but
-    // in other browsers concatinates them and prints them out as
+    // in other browsers concatenates them and prints them out as
     // strings.
     function _log() {
 
@@ -5396,7 +5396,7 @@
         // The orientation parameter from the ruleDict is a key into
         // the dictionary of arrays of neighborhood names, used to
         // make the different rotations of the hglass rule. The bit
-        // values of those neighbors are concatinated into an index
+        // values of those neighbors are concatenated into an index
         // into the glassTable array, so we can rotate the rule around
         // in four different directions by permuting the neighbors.
 
@@ -5442,7 +5442,7 @@
         // The orientation parameter from the ruleDict is a key into
         // the dictionary of arrays of neighborhood names, used to
         // make the different rotations of the hglass rule. The bit
-        // values of those neighbors are concatinated into an index
+        // values of those neighbors are concatenated into an index
         // into the glassTable array, so we can rotate the rule around
         // in four different directions by permuting the neighbors.
 
@@ -14305,7 +14305,7 @@ dy = 0;
         // the resulting output in the ruleTableBytes array lookup table,
         // which will be used by the neighborhoodFunction to efficiently
         // calculate the rule value, by indexing into the ruleTableBytes
-        // array by a number computed by simply concatinating the bit
+        // array by a number computed by simply concatenating the bit
         // values of the neighbors of the actual cells. This is how the
         // CAM6 hardware works so efficiently, by computing the index
         // in hardware and indexing into ruleTableByte, even though the
