@@ -268,7 +268,7 @@
 //   becomes the past.  It's necessary to have two buffers, because
 //   you can't apply cellular automata in-place in one buffer, since
 //   you would stomp on your past neighbors whose future you just
-//   computed, since the neighbors above and to the right would be
+//   computed, since the neighbors above and to the left would be
 //   from the future instead of the past.
 //
 //   Edge conditions eliminated from inner loop by making cell buffers
