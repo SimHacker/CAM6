@@ -1357,6 +1357,7 @@
         phaseShiftY: true,
         phaseShiftCell: true,
         phaseShiftStep: true,
+        phaseShiftSpin: true,
         heatShiftPollution: true
     };
 
