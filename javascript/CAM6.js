@@ -5575,7 +5575,7 @@
                 // Torben / Anneal
 
                 var torben =
-                    [1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0][
+                    [0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1][
                         state.nw1 + state.n1  + state.ne1 +   // nw n  ne
                         state.w1  + state.c1  + state.e1  +   // w  c  e 
                         state.sw1 + state.s1  + state.se1 +   // sw s  se
@@ -5585,7 +5585,7 @@
                     ] << 1;
 
                 var anneal =
-                    [1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0][
+                    [0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1][
                         state.nw0 + state.n0  + state.ne0 +   // nw n  ne
                         state.w0  + state.c0  + state.e0  +   // w  c  e
                         state.sw0 + state.s0  + state.se0 +   // sw s  se
@@ -6947,7 +6947,7 @@
                     [ 'c', 0 ],
                     [ 'life', 16 ],
                     [ 'brain', 32 ],
-                    [ 'torbin', 48 ],
+                    [ 'torben', 48 ],
                     [ 'anneal', 64 ],
                     [ 'ditto', 80 ],
                     [ 'logic', 96 ],
